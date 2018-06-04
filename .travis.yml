@@ -1,5 +1,7 @@
 ---
-sudo: false
+sudo: required
+services:
+  - docker
 language: ruby
 rvm:
   - 2.4.3
