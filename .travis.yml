@@ -5,6 +5,8 @@ services:
 language: ruby
 rvm:
   - 2.4.3
-before_install: gem install bundler -v 1.16.1
+before_install:
+  - gem install bundler -v 1.16.1
+  - docker-compose up -d
 after_failure:
   - cat log/test.log
