@@ -18,7 +18,7 @@ module SpecLogging
   end
 
   def log_file
-    @log_file ||= File.open(log_path, File::WRONLY | File::APPEND)
+    @log_file ||= File.open(log_path, 'a+')
   end
 
   def test_logger
