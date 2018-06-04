@@ -13,10 +13,15 @@ module Hanami
 
           # Command to run the worker
           class Run < Hanami::CLI::Command
-            def call(*)
+            option :emulator,
+                   type: :boolean,
+                   default: false,
+                   desc: 'Whether to use an the Cloud Pub/Sub emulator'
+
+            def call(opts)
               Hanami::Events::CloudPubsub.setup
               setup_signal_handlers
-              @runner = build_runner
+              @runner = build_runner(opts)
               logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
               @runner.start
 
@@ -30,8 +35,13 @@ module Hanami
 
             def setup_environment; end
 
-            def build_runner
-              pubsub = Google::Cloud::Pubsub.new project_id: 'example'
+            def build_runner(opts)
+              pubsub_opts = {}
+
+              ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
+              pubsub_opts[:project_id] = 'emulator' if opts[:emulator]
+
+              pubsub = Google::Cloud::Pubsub.new pubsub_opts
               events = Hanami::Events.initialize(:cloud_pubsub, pubsub: pubsub, logger: logger)
               events.adapter.listen
               Hanami::Events::CloudPubsub::Runner.new(
