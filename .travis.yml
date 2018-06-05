@@ -1,4 +1,6 @@
+---
 sudo: required
+cache: bundler
 services:
   - docker
 language: ruby
