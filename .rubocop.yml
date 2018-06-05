@@ -1,0 +1,31 @@
+---
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 2.3
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
+    - ./*.gemspec
+
+Metrics/ModuleLength:
+  Exclude:
+    - spec/**/*.rb
+
+Style/LambdaCall:
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Exclude:
+    - apps/**/*.rb
+    - spec/**/*.rb
+
+Style/BlockDelimiters:
+  Enabled: false

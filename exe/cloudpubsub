@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require 'hanami/cli'
+require 'hanami/events/cloud_pubsub/cli'
+
+Hanami::CLI.new(Hanami::Events::CloudPubsub::CLI::Commands).call

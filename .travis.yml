@@ -1,0 +1,28 @@
+---
+sudo: required
+cache: bundler
+services:
+  - docker
+language: ruby
+env:
+  - DOCKER_COMPOSE_VERSION=1.21.2
+rvm:
+  - 2.4
+before_install:
+  - gem install bundler -v 1.16.1
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+    -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose up -d
+after_failure:
+  - cat log/test.log
+deploy:
+  provider: rubygems
+  api_key:
+    secure: q/B3zDEld8yzf1plU1vlnUIhqk7hhdrqdF8uRnSvikweM9MSeGk1x6lcZ4mxnwCVPuQEP49iI4sNtFHiJnP/Dv6f48A6ltpVlyST1vghhXlaIi9+r9pCJqB+vAOii7poq9lWyKWj15MMB5xE52Alz7WzUccOL55gmJ4q+Lia6+z04m+VdOuEY1Lyn38O9jtZJBBfnbjar+qKoHXCNSKuJfXrFBi+2LKvaxJFWS8NBvhnDILNkcooh01rp6/dtNuUMFTLd1i+zMMBYc1PyGP0+fNZE9MXUViy3soDfgXlPDyiwtTzASLCu6HXQg8g9SwBxMnkRQRxAKYzoAPoECcr9NxMR1riH6xaA2wkwW/rKcBP5JPfbRymRgSui4uhYSq7WJR5KNxpH2JYK+rW/EL9SB+7BT67g3ZNL6YGpL3R7/S5RLdHk+lJIY8uFRtzhYgchSa0tkBAm/qbll5d4B9wq7O1/McNwUQJKFs7CsVXL/arZUFgQVGdkQDOIeCITzeFy4iP3JASewOk+yCUyCbBCya2AicU7BOjYpghD0QNmyaunTPhCySdBe4mS3QkAspHGg10H5dggNS0IqHYmUTlmHiYg9Pf9TF85krQih/s3hr/+i13u+y8iBwA7n/mXTt5IQ+NQgXNSC0uJvSjHU2Rzr9yKZ1lLEXMB0y+S9OVeZA=
+  gem: hanami-events-cloud_pubsub
+  on:
+    tags: true
+    repo: adHawk/hanami-events-cloud_pubsub
