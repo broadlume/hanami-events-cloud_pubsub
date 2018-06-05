@@ -5,4 +5,6 @@ set -vx
 
 bundle install
 
+echo "Please make sure docker and docker-compose are installed"
+
 # Do any other automated setup that you need to do here
