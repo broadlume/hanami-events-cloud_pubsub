@@ -6,7 +6,7 @@ language: ruby
 env:
   - DOCKER_COMPOSE_VERSION=1.21.2
 rvm:
-  - 2.4.3
+  - 2.4.4
 before_install:
   - gem install bundler -v 1.16.1
   - sudo rm /usr/local/bin/docker-compose
