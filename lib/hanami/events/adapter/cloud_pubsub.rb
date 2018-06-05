@@ -43,6 +43,8 @@ module Hanami
         def subscribe(event_name, id:, &block)
           return false unless listening?
 
+          logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
+
           @subscribers << Subscriber.new(event_name, block, logger)
           topic = topic_for event_name
 

@@ -10,7 +10,7 @@ require 'hanami/events/cloud_pubsub'
 
 Hanami::Events::CloudPubsub.setup
 
-pubsub = Google::Cloud::Pubsub.new project_id: 'example'
+pubsub = Google::Cloud::Pubsub.new project_id: 'emulator'
 
 events = Hanami::Events.initialize(:cloud_pubsub, pubsub: pubsub, logger: Logger.new(STDOUT))
 

@@ -16,12 +16,19 @@ module Hanami
             option :emulator,
                    type: :boolean,
                    default: false,
-                   desc: 'Whether to use an the Cloud Pub/Sub emulator'
+                   desc: 'Whether to use the Cloud Pub/Sub emulator'
+
+            option :config,
+                   type: :string,
+                   default: './config/cloudpubsub.rb',
+                   desc: 'Config file which is loaded before starting the runner'
 
             def call(opts)
+              parse_opts(opts)
               CloudPubsub.setup
               setup_signal_handlers
-              @runner = build_runner(opts)
+              @runner = build_runner
+              load @config
               logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
               @runner.start
 
@@ -33,20 +40,25 @@ module Hanami
 
             private
 
-            def setup_environment; end
+            def parse_opts(opts)
+              @emulator = opts[:emulator]
+              logger.info 'Running if emulator mode' if @emulator
+              @config = opts[:config]
+              logger.debug "Using config file: #{@config}"
+            end
 
-            def build_runner(opts)
+            def build_runner
               pubsub_opts = {}
 
-              ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
-              pubsub_opts[:project_id] = 'emulator' if opts[:emulator]
+              ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if @emulator
+              pubsub_opts[:project_id] = 'emulator' if @emulator
 
               pubsub = Google::Cloud::Pubsub.new pubsub_opts
-              events = Hanami::Events.initialize(:cloud_pubsub,
-                                                 pubsub: pubsub,
-                                                 logger: logger,
-                                                 listen: true)
-              Runner.new(logger: logger, adapter: events.adapter)
+              $events = Hanami::Events.initialize(:cloud_pubsub,
+                                                  pubsub: pubsub,
+                                                  logger: logger,
+                                                  listen: true)
+              Runner.new(logger: logger, adapter: $events.adapter)
             end
 
             def logger
