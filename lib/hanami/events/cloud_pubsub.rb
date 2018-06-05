@@ -3,6 +3,7 @@
 require 'hanami/events'
 require 'hanami/events/cloud_pubsub/version'
 require 'hanami/events/cloud_pubsub/runner'
+require 'hanami/events/cloud_pubsub/mixin'
 require 'google/cloud/pubsub'
 
 module Hanami
