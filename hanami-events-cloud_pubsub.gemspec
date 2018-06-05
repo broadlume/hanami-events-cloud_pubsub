@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Google Cloud Pub/Sub adapter for the hanami-events gem'
   spec.description   = 'Makes it easy to use Cloud Pub/Sub with Hanami'
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = 'https://github.com/adHawk/hanami-events-cloud_pubsub'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
