@@ -19,7 +19,7 @@ module Hanami
                    desc: 'Whether to use an the Cloud Pub/Sub emulator'
 
             def call(opts)
-              Hanami::Events::CloudPubsub.setup
+              CloudPubsub.setup
               setup_signal_handlers
               @runner = build_runner(opts)
               logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
@@ -42,12 +42,11 @@ module Hanami
               pubsub_opts[:project_id] = 'emulator' if opts[:emulator]
 
               pubsub = Google::Cloud::Pubsub.new pubsub_opts
-              events = Hanami::Events.initialize(:cloud_pubsub, pubsub: pubsub, logger: logger)
-              events.adapter.listen
-              Hanami::Events::CloudPubsub::Runner.new(
-                logger: logger,
-                adapter: events.adapter
-              )
+              events = Hanami::Events.initialize(:cloud_pubsub,
+                                                 pubsub: pubsub,
+                                                 logger: logger,
+                                                 listen: true)
+              Runner.new(logger: logger, adapter: events.adapter)
             end
 
             def logger

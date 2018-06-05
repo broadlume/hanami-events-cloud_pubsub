@@ -14,7 +14,7 @@ pubsub = Google::Cloud::Pubsub.new project_id: 'example'
 
 events = Hanami::Events.initialize(:cloud_pubsub, pubsub: pubsub, logger: Logger.new(STDOUT))
 
-1_000.times do
+3.times do
   events.broadcast('user.deleted', user_id: 1)
 end
 

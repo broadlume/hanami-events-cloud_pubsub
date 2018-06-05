@@ -11,7 +11,10 @@ Hanami::Events::CloudPubsub.setup
 
 logger = Logger.new(STDOUT).tap { |lgr| lgr.level = Logger::INFO }
 pubsub = Google::Cloud::Pubsub.new project_id: 'example'
-events = Hanami::Events.initialize(:cloud_pubsub, pubsub: pubsub, logger: logger)
+events = Hanami::Events.initialize(:cloud_pubsub,
+                                   pubsub: pubsub,
+                                   logger: logger,
+                                   listen: true)
 runner = Hanami::Events::CloudPubsub::Runner.new(
   logger: logger,
   adapter: events.adapter
@@ -19,8 +22,9 @@ runner = Hanami::Events::CloudPubsub::Runner.new(
 
 queue = Queue.new
 
-runner.events.subscribe('user.deleted') { |payload| queue << "Deleted user: #{payload}" }
-runner.events.subscribe('user.created') { |payload| queue << "Created user: #{payload}" }
+runner.adapter.subscribe('user.deleted') { |payload| queue << "Deleted user: #{payload}" }
+runner.adapter.subscribe('user.deleted') { |payload| queue << "Deleted2 user: #{payload}" }
+# runner.adapter.subscribe('user.created') { |payload| queue << "Created user: #{payload}" }
 logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
 runner.start
 

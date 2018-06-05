@@ -14,6 +14,7 @@ module Hanami
         def initialize(params)
           @pubsub = params[:pubsub]
           @logger = params[:logger] || Logger.new(STDOUT)
+          @listen = params[:listen] || false
           @subscribers = Concurrent::Array.new
           @listeners = Concurrent::Array.new
           @serializer_type = params.fetch(:serializer, :json).to_sym
