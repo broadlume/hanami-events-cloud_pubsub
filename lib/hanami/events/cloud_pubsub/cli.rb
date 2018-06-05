@@ -24,21 +24,31 @@ module Hanami
                    desc: 'Config file which is loaded before starting the runner'
 
             def call(opts)
-              parse_opts(opts)
               CloudPubsub.setup
+              parse_opts(opts)
               setup_signal_handlers
-              @runner = build_runner
-              load @config
-              logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
-              @runner.start
-
-              # sleep forevverrrr
-              sleep
+              build_runner
+              load_config
+              start_runner
+              sleep_forever
             rescue Interrupt
               shutdown
             end
 
             private
+
+            def sleep_forever
+              sleep
+            end
+
+            def load_config
+              load @config
+            end
+
+            def start_runner
+              logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
+              @runner.start
+            end
 
             def parse_opts(opts)
               @emulator = opts[:emulator]
@@ -58,7 +68,7 @@ module Hanami
                                                   pubsub: pubsub,
                                                   logger: logger,
                                                   listen: true)
-              Runner.new(logger: logger, adapter: $events.adapter)
+              @runner = Runner.new(logger: logger, adapter: $events.adapter)
             end
 
             def logger
