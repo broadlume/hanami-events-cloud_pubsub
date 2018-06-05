@@ -4,6 +4,7 @@ require 'hanami/events/cloud_pubsub/listener'
 
 RSpec.describe Hanami::Events::CloudPubsub::Listener do
   let(:topic_name) { 'test-' + SecureRandom.hex(12) }
+  let(:subscriber_id) { 'test-' + SecureRandom.hex(12) }
   let(:topic) { pubsub.create_topic(topic_name) }
   let(:pubsub) { Google::Cloud::Pubsub.new }
   let(:logger) { test_logger }
@@ -17,7 +18,11 @@ RSpec.describe Hanami::Events::CloudPubsub::Listener do
   end
 
   subject(:listener) do
-    described_class.new(topic: topic, logger: logger, handler: handler, event_name: topic_name)
+    described_class.new(topic: topic,
+                        logger: logger,
+                        handler: handler,
+                        event_name: topic_name,
+                        subscriber_id: subscriber_id)
   end
 
   describe '#start' do
@@ -44,7 +49,7 @@ RSpec.describe Hanami::Events::CloudPubsub::Listener do
         listener.start
         expect(logger).to receive(:error).with(/Oh no/)
         topic.publish 'hello'
-        sleep 1
+        sleep 2
 
         listener.shutdown
       end

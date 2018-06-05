@@ -40,13 +40,13 @@ module Hanami
         #
         # @param event_name [Symbol, String] the event name
         # @param block [Block] to execute when event is broadcasted
-        def subscribe(event_name, &block)
+        def subscribe(event_name, id:, &block)
           return false unless listening?
 
           @subscribers << Subscriber.new(event_name, block, logger)
           topic = topic_for event_name
 
-          register_listener(event_name, topic)
+          register_listener(event_name, topic, id)
         end
 
         def flush_messages
@@ -67,8 +67,9 @@ module Hanami
 
         attr_reader :logger
 
-        def register_listener(event_name, topic)
+        def register_listener(event_name, topic, subscriber_id)
           listener = ::Hanami::Events::CloudPubsub::Listener.new(
+            subscriber_id: subscriber_id,
             event_name: event_name,
             handler: method(:call_subscribers),
             logger: logger,

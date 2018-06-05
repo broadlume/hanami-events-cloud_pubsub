@@ -9,19 +9,21 @@ module Hanami
 
         attr_reader :topic,
                     :subscriber,
+                    :subscriber_id,
                     :logger,
                     :handler,
                     :event_name
 
-        def initialize(topic:, logger:, handler:, event_name:)
+        def initialize(topic:, logger:, handler:, event_name:, subscriber_id:)
           @topic = topic
           @logger = logger
           @handler = handler
           @event_name = event_name
+          @subscriber_id = subscriber_id
         end
 
         def register
-          subscription = subscription_for(event_name)
+          subscription = subscription_for(subscriber_id)
 
           listener = subscription.listen do |message|
             handle_message(message)
@@ -39,11 +41,6 @@ module Hanami
 
         def shutdown
           subscriber.stop.wait!
-          self
-        end
-
-        def kill!
-          subscriber.stop!
           self
         end
 
@@ -74,6 +71,7 @@ module Hanami
           id = message.message_id
           succeeded = false
           failed = false
+
           handler.call(message)
           succeeded = true
         rescue Exception => err # rubocop:disable all

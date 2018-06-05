@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 require_relative './../../../../lib/hanami/events/adapter/cloud_pubsub'
@@ -12,7 +11,7 @@ module Hanami
 
       describe '#listen' do
         it 'does not listen by default' do
-          expect(adapter.subscribe('test') {}).to eql(false)
+          expect(adapter.subscribe('test', id: 'test') {}).to eql(false)
           expect(adapter.subscribers).to be_empty
         end
 
