@@ -39,6 +39,10 @@ module Hanami
           @subscriber.start
         end
 
+        def started?
+          @subscriber&.started?
+        end
+
         def shutdown
           subscriber.stop.wait!
           self

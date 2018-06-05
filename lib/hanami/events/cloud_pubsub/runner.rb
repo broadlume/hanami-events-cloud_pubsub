@@ -82,10 +82,18 @@ module Hanami
         #
         # See: https://github.com/mperham/sidekiq/blob/e447dae961ebc894f12848d9f33446a07ffc67dc/bin/sidekiqload#L74
         def print_debug_info(stream = STDOUT)
-          stream.puts '=== Subscribers ==='
-          adapter.listeners.each do |listener|
-            stream.puts listener.format
-          end
+          stream.puts <<~MSG
+
+            ╔══════ LISTENERS
+            #{adapter.listeners.map { |lis| '║' + lis.format }.join("\n")}
+            ║
+            ╠══════ GENERAL
+            ║ ready?: #{ready?}
+            ║ healthy?: #{healthy?}
+            ║ threads: #{Thread.list.count}
+            ║ threads running: #{Thread.list.select { |thread| thread.status == 'run' }.count}
+            ╚══════
+          MSG
         end
 
         def sleep_for_a_bit

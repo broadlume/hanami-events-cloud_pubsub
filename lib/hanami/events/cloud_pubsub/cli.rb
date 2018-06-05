@@ -24,10 +24,10 @@ module Hanami
                    desc: 'Config file which is loaded before starting the runner'
 
             def call(opts)
-              CloudPubsub.setup
+              setup_env(opts)
               parse_opts(opts)
-              setup_signal_handlers
               build_runner
+              setup_signal_handlers
               load_config
               start_runner
               sleep_forever
@@ -36,6 +36,19 @@ module Hanami
             end
 
             private
+
+            def setup_env(opts)
+              ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
+              try_load_bootfile
+              CloudPubsub.setup
+            end
+
+            def try_load_bootfile
+              boot_file = File.join(Bundler.default_gemfile.parent.to_s, 'config', 'boot.rb')
+              load boot_file.to_s
+            rescue LoadError
+              logger.warn 'Could not load config/boot.rb, assuming we are not in a Hanami project'
+            end
 
             def sleep_forever
               sleep
@@ -60,7 +73,6 @@ module Hanami
             def build_runner
               pubsub_opts = {}
 
-              ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if @emulator
               pubsub_opts[:project_id] = 'emulator' if @emulator
 
               pubsub = Google::Cloud::Pubsub.new pubsub_opts
@@ -72,11 +84,11 @@ module Hanami
             end
 
             def logger
-              if defined?(Hanami.logger)
-                Hanami.logger
-              else
-                Logger.new(STDOUT).tap { |logger| logger.level = Logger::INFO }
-              end
+              @logger ||= if defined?(Hanami.logger)
+                            Hanami.logger
+                          else
+                            Logger.new(STDOUT)
+                          end
             end
 
             def setup_signal_handlers
