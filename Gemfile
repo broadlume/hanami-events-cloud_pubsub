@@ -8,7 +8,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 group :test do
-  gem 'hanami-events', github: 'hanami/events'
+  gem 'hanami-events', github: 'ianks/events', branch: 'args-to-subscribe'
   gem 'pry'
   gem 'rubocop'
 end

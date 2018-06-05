@@ -1,6 +1,7 @@
 GIT
-  remote: https://github.com/hanami/events
-  revision: 8e539348986df33247cd3f3181fc3642d7c3b8ef
+  remote: https://github.com/ianks/events
+  revision: 29539d68cae73faa638b5b4691fd87ec2b34a447
+  branch: args-to-subscribe
   specs:
     hanami-events (0.1.0)
       dry-container (~> 0.6)
@@ -91,7 +92,7 @@ GEM
       method_source (~> 0.9.0)
     public_suffix (3.0.2)
     rainbow (3.0.0)
-    rake (10.5.0)
+    rake (12.3.1)
     rly (0.2.3)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
@@ -120,7 +121,7 @@ GEM
       jwt (>= 1.5, < 3.0)
       multi_json (~> 1.10)
     transproc (1.0.2)
-    unicode-display_width (1.3.3)
+    unicode-display_width (1.4.0)
 
 PLATFORMS
   ruby
@@ -130,7 +131,7 @@ DEPENDENCIES
   hanami-events!
   hanami-events-cloud_pubsub!
   pry
-  rake (~> 10.0)
+  rake (~> 12.3)
   rspec (~> 3.0)
   rubocop
 
