@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085'
+ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8086'
 
 require 'bundler/setup'
 require 'hanami/events/cloud_pubsub'

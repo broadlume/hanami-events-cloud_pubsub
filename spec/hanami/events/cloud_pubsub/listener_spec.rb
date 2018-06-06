@@ -10,11 +10,14 @@ RSpec.describe Hanami::Events::CloudPubsub::Listener do
   let(:logger) { test_logger }
 
   before(:all) do
-    spawn 'docker-compose up pubsub', out: log_file, err: log_file
+    spawn 'docker run --rm --name listener_spec ' \
+          '-p 8086:8085 adhawk/google-pubsub-emulator',
+          out: log_file, err: log_file
   end
 
   after(:all) do
-    system 'docker-compose stop pubsub', out: log_file, err: log_file
+    system 'docker stop listener_spec',
+           out: log_file, err: log_file
   end
 
   subject(:listener) do

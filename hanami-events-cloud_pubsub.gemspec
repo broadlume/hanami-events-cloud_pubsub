@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 lib = File.expand_path('lib', __dir__)
@@ -24,9 +23,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'google-cloud-pubsub', '~> 0.30.2'
-
-  spec.add_runtime_dependency 'hanami-cli'
-  spec.add_runtime_dependency 'hanami-events'
+  spec.add_dependency 'hanami-cli'
+  spec.add_dependency 'hanami-events'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
   spec.add_development_dependency 'rake', '~> 12.3'

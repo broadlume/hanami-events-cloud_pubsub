@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hanami/events/cloud_pubsub/thread_inspector'
+
 module Hanami
   module Events
     module CloudPubsub
@@ -81,10 +83,11 @@ module Hanami
         # some reason.
         #
         # See: https://github.com/mperham/sidekiq/blob/e447dae961ebc894f12848d9f33446a07ffc67dc/bin/sidekiqload#L74
+        # rubocop:disable Metrics/AbcSize
         def print_debug_info(stream = STDOUT)
           stream.puts <<~MSG
             ╔══════ BACKTRACES
-            #{Thread.list.flat_map { |thr| "║ #{thr.inspect}: #{thr.status}\n" + pretty_backtrace(thr.backtrace) }.join("\n")}
+            #{Thread.list.flat_map { |thr| ThreadInspector.new(thr).to_s }.join("\n")}
             ╠══════ LISTENERS
             #{adapter.listeners.map { |lis| '║ ' + lis.format }.join("\n")}
             ║
@@ -96,32 +99,10 @@ module Hanami
             ╚══════
           MSG
         end
+        # rubocop:enable Metrics/AbcSize
 
         def sleep_for_a_bit
           sleep @sleep_time
-        end
-
-        def colorize(text, color_code)
-          "\e[#{color_code}m#{text}\e[0m"
-        end
-
-        def pretty_backtrace(backtrace)
-          pretty_backtrace = backtrace.map do |call|
-            if parts = call.match(/^(?<file>.+):(?<line>\d+):in `(?<code>.*)'$/)
-              file = parts[:file].sub /^#{Regexp.escape(File.join(Dir.getwd, ''))}/, ''
-              line = "#{colorize(file, 36)} #{colorize('(', 37)}" \
-                     "#{colorize(parts[:line], 32)}#{colorize('): ', 37)} " \
-                     "#{colorize(parts[:code], 31)}"
-            else
-              line = colorize(call, 31)
-            end
-
-            line
-          end
-
-          pretty_backtrace.map! { |line| "║\t" + line }
-          pretty_backtrace << '║'
-          pretty_backtrace.join("\n")
         end
       end
     end
