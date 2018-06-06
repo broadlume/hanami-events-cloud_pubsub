@@ -99,7 +99,7 @@ module Hanami
         end
 
         def ensure_subscriber!
-          raise NoSubscriberError, 'No subsriber has been registererd' unless @subscriber
+          raise NoSubscriberError, 'No subsriber has been registered' unless @subscriber
         end
       end
     end

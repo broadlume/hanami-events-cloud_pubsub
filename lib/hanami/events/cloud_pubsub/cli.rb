@@ -31,27 +31,43 @@ module Hanami
               load_config
               start_runner
               sleep_forever
-            rescue Interrupt
-              shutdown
             end
 
             private
 
             def setup_env(opts)
               ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
-              try_load_bootfile
+              try_load_environment
+              resolve_components
               CloudPubsub.setup
             end
 
-            def try_load_bootfile
-              boot_file = File.join(Bundler.default_gemfile.parent.to_s, 'config', 'boot.rb')
+            def try_load_environment
+              boot_file = Bundler.default_gemfile.parent.join('config', 'environment.rb')
               load boot_file.to_s
             rescue LoadError
-              logger.warn 'Could not load config/boot.rb, assuming we are not in a Hanami project'
+              logger.warn <<~MSG
+                Could not load config/environment.rb, assuming we are not in a Hanami project
+              MSG
+            end
+
+            def resolve_components
+              return unless defined?(Hanami::Components)
+              Hanami::Components.resolve('logger')
             end
 
             def sleep_forever
+              thread = Thread.new do
+                loop do
+                  event = @queue.pop
+                  event.call
+                end
+              end
+
               sleep
+            rescue Interrupt
+              thread.kill
+              shutdown
             end
 
             def load_config
@@ -65,7 +81,7 @@ module Hanami
 
             def parse_opts(opts)
               @emulator = opts[:emulator]
-              logger.info 'Running if emulator mode' if @emulator
+              logger.info 'Running in emulator mode' if @emulator
               @config = opts[:config]
               logger.debug "Using config file: #{@config}"
             end
@@ -92,16 +108,18 @@ module Hanami
             end
 
             def setup_signal_handlers
+              @queue = Queue.new
+
               Signal.trap('TSTP') do
-                Thread.new { @runner.pause }
+                @queue << proc { @runner.pause }
               end
 
               Signal.trap('CONT') do
-                Thread.new { @runner.start }
+                @queue << proc { @runner.start }
               end
 
               Signal.trap('TTIN') do
-                Thread.new { @runner.print_debug_info }
+                @queue << proc { @runner.print_debug_info }
               end
             end
 
