@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hanami/events/cloud_pubsub/safe_error_handler'
+
 module Hanami
   module Events
     module CloudPubsub
@@ -102,13 +104,7 @@ module Hanami
 
         def run_error_handlers(err, message)
           CloudPubsub.error_handlers.each do |handler|
-            begin
-              handler.call(err, message)
-            rescue StandardError => ex
-              CloudPubsub.logger.error '!!! ERROR HANDLER THREW AN ERROR !!!'
-              CloudPubsub.logger.error ex
-              CloudPubsub.logger.error ex.backtrace.join("\n") unless ex.backtrace.nil?
-            end
+            SafeErrorHandler.call(handler, err, message)
           end
         end
       end
