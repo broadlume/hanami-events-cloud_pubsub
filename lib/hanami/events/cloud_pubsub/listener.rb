@@ -70,7 +70,7 @@ module Hanami
 
         #:reek:TooManyStatements
         #:reek:DuplicateMethodCall
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:disable Metrics/MethodLength
         def run_handler(message)
           id = message.message_id
           succeeded = false
@@ -80,7 +80,7 @@ module Hanami
           succeeded = true
         rescue Exception => err # rubocop:disable all
           failed = true
-          logger.error "Message(#{id}) failed with exception #{err.inspect}"
+          run_error_handlers(err, message)
           raise err
         ensure
           id = message.message_id
@@ -100,6 +100,18 @@ module Hanami
 
         def ensure_subscriber!
           raise NoSubscriberError, 'No subsriber has been registered' unless @subscriber
+        end
+
+        def run_error_handlers(err, message)
+          CloudPubsub.error_handlers.each do |handler|
+            begin
+              handler.call(err, message)
+            rescue StandardError => ex
+              CloudPubsub.logger.error '!!! ERROR HANDLER THREW AN ERROR !!!'
+              CloudPubsub.logger.error ex
+              CloudPubsub.logger.error ex.backtrace.join("\n") unless ex.backtrace.nil?
+            end
+          end
         end
       end
     end
