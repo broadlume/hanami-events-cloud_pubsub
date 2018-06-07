@@ -72,10 +72,8 @@ module Hanami
         #:reek:DuplicateMethodCall
         # rubocop:disable Metrics/MethodLength
         def run_handler(message)
-          id = message.message_id
           succeeded = false
           failed = false
-
           handler.call(message)
           succeeded = true
         rescue Exception => err # rubocop:disable all
@@ -92,7 +90,7 @@ module Hanami
             logger.warn "Message(#{id}) was terminated from outside, rescheduling"
           end
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:enable Metrics/MethodLength
 
         def subscription_for(name)
           topic.find_subscription(name) || topic.create_subscription(name)
