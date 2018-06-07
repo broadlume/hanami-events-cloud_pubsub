@@ -15,8 +15,7 @@ module Hanami
 
       setting :logger, Logger.new(STDOUT), reader: true
       setting :subscriptions_loader, proc {
-        msg = <<~MSG
-
+        abort <<~MSG
           ┌────────────────────────────────────────────────────────────────────────────────┐
           │ You must configure subscriptions_loader param in order to be able to subscribe │
           │ to events. When the worker is setup and ready to subscribe to events, this     │
@@ -32,8 +31,6 @@ module Hanami
           │ end                                                                            │
           └────────────────────────────────────────────────────────────────────────────────┘
         MSG
-
-        abort msg
       }, reader: true
       setting :error_handlers, [
         ->(err, msg) do
