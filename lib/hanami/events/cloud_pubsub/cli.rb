@@ -26,9 +26,9 @@ module Hanami
             def call(opts)
               setup_env(opts)
               parse_opts(opts)
+              load_config
               build_runner
               setup_signal_handlers
-              load_config
               start_runner
               sleep_forever
             end
@@ -37,23 +37,7 @@ module Hanami
 
             def setup_env(opts)
               ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
-              try_load_environment
-              resolve_components
               CloudPubsub.setup
-            end
-
-            def try_load_environment
-              boot_file = Bundler.default_gemfile.parent.join('config', 'environment.rb')
-              load boot_file.to_s
-            rescue LoadError
-              logger.warn <<~MSG
-                Could not load config/environment.rb, assuming we are not in a Hanami project
-              MSG
-            end
-
-            def resolve_components
-              return unless defined?(Hanami::Components)
-              Hanami::Components.resolve('logger')
             end
 
             def sleep_forever
@@ -71,19 +55,20 @@ module Hanami
             end
 
             def load_config
-              load @config
+              load String(@config)
+            rescue LoadError
+              logger.warn "No config file found (tried #{@config}), using default"
             end
 
             def start_runner
-              logger.info "Starting CloudPubsub runner (pid: #{Process.pid})"
+              logger.debug 'Running in emulator mode' if @emulator
+              logger.info "Starting worker (pid: #{Process.pid})"
               @runner.start
             end
 
             def parse_opts(opts)
               @emulator = opts[:emulator]
-              logger.info 'Running in emulator mode' if @emulator
               @config = opts[:config]
-              logger.debug "Using config file: #{@config}"
             end
 
             def build_runner
@@ -100,11 +85,7 @@ module Hanami
             end
 
             def logger
-              @logger ||= if defined?(Hanami.logger)
-                            Hanami.logger
-                          else
-                            Logger.new(STDOUT)
-                          end
+              CloudPubsub.logger
             end
 
             def setup_signal_handlers
