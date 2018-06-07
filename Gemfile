@@ -11,4 +11,5 @@ group :test do
   gem 'hanami-events', github: 'ianks/events', branch: 'args-to-subscribe'
   gem 'pry'
   gem 'rubocop'
+  gem 'simplecov', require: false
 end
