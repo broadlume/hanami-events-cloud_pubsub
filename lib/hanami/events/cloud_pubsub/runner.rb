@@ -7,7 +7,7 @@ module Hanami
     module CloudPubsub
       # Responsible for starting and managing the work processes
       class Runner
-        attr_reader :events, :logger, :adapter
+        attr_reader :logger, :adapter
 
         def initialize(adapter:, logger:, sleep_time: 2)
           @logger = logger
@@ -19,6 +19,7 @@ module Hanami
         def start(_options = {})
           logger.info 'Starting CloudPubsub listeners'
           adapter.listeners.map(&:start)
+          self
         end
 
         # Will be called on TSTP
@@ -30,6 +31,7 @@ module Hanami
         def pause
           logger.info 'Pausing CloudPubsub runner'
           adapter.listeners.each(&:stop)
+          self
         end
 
         # Will be called on SIGINT, TERM
@@ -43,6 +45,7 @@ module Hanami
           sleep_for_a_bit
           adapter.flush_messages
           adapter.listeners.each(&:wait)
+          self
         end
 
         # (optional) Kill all subscribers
