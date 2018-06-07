@@ -52,19 +52,40 @@ First, create a config file:
 require 'config/environment'
 
 Hanami.boot
+
+Hanami::Events::CloudPubsub.configure do |config|
+  # required
+  config.subscriptions_loader = -> do
+    # Ensure these files are not loaded until *after* the subscriptions are
+    # setup, or else you will have an undefined reference to `$events`
+    Hanami::Utils.require! 'apps/web/subscriptions'
+  end
+
+  # (optional)
+  config.logger = Hanami.logger
+
+  # (optional)
+  config.error_handlers << lambda do |err, message|
+    Honeybadger.notify(err, context: message.attributes)
+  end
+end
+
 ```
 
 Then, run the worker process:
 
 ```sh
-bundle exec exe/cloudpubsub run --config config/cloudpubsub.rb
+bundle exec cloudpubsub run
 ```
+
+# Testing
 
 If you would like to use an emulator process for testing:
 
 ```sh
-docker run -p 8085:8085 adhawk/google-pubsub-emulator # start the emulator
-bundle exec exe/cloudpubsub run --emulator --config config/cloudpubsub.rb # use emulator for the worker
+$(gcloud beta emulators pubsub env-init)
+gcloud beta emulators pubsub start
+bundle exec cloudpubsub run --emulator
 ```
 
 ## Development

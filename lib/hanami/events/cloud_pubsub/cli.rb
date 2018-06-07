@@ -28,12 +28,17 @@ module Hanami
               parse_opts(opts)
               load_config
               build_runner
+              load_subscriptions
               setup_signal_handlers
               start_runner
               sleep_forever
             end
 
             private
+
+            def load_subscriptions
+              CloudPubsub.subscriptions_loader.call
+            end
 
             def setup_env(opts)
               ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
