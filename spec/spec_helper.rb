@@ -2,6 +2,11 @@
 
 ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8086'
 
+if ENV['COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.start
+end
+
 require 'bundler/setup'
 require 'hanami/events/cloud_pubsub'
 
