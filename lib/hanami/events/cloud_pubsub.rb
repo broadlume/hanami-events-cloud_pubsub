@@ -13,6 +13,7 @@ module Hanami
     module CloudPubsub
       extend Dry::Configurable
 
+      setting :project_id, reader: true
       setting :logger, Logger.new(STDOUT), reader: true
       setting :subscriptions_loader, proc {
         abort <<~MSG

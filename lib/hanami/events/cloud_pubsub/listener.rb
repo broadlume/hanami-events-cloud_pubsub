@@ -95,7 +95,9 @@ module Hanami
         # rubocop:enable Metrics/MethodLength
 
         def subscription_for(name)
-          topic.find_subscription(name) || topic.create_subscription(name)
+          topic.create_subscription(name)
+        rescue Google::Cloud::AlreadyExistsError
+          # OK
         end
 
         def ensure_subscriber!

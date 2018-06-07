@@ -23,6 +23,10 @@ module Hanami
                    default: './config/cloudpubsub.rb',
                    desc: 'Config file which is loaded before starting the runner'
 
+            option :project_id,
+                   type: :string,
+                   desc: 'Project ID for the project'
+
             def call(opts)
               setup_env(opts)
               parse_opts(opts)
@@ -72,6 +76,7 @@ module Hanami
             end
 
             def parse_opts(opts)
+              @project_id = opts[:project_id]
               @emulator = opts[:emulator]
               @config = opts[:config]
             end
@@ -80,6 +85,7 @@ module Hanami
               pubsub_opts = {}
 
               pubsub_opts[:project_id] = 'emulator' if @emulator
+              pubsub_opts[:project_id] = @project_id if @project_id
 
               pubsub = Google::Cloud::Pubsub.new pubsub_opts
               $events = Hanami::Events.initialize(:cloud_pubsub,
