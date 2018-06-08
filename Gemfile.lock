@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    hanami-events-cloud_pubsub (0.2.1)
+    hanami-events-cloud_pubsub (0.2.2)
       dry-configurable (~> 0.7.0)
       google-cloud-pubsub (~> 0.30.2)
       hanami-cli (~> 0.2.0)
@@ -76,7 +76,7 @@ GEM
     hanami-utils (1.2.0)
       concurrent-ruby (~> 1.0)
       transproc (~> 1.0)
-    jaro_winkler (1.4.0)
+    jaro_winkler (1.5.1)
     json (2.1.0)
     jwt (2.1.0)
     little-plugger (1.1.4)
@@ -113,8 +113,8 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.7.0)
     rspec-support (3.7.1)
-    rubocop (0.57.0)
-      jaro_winkler (~> 1.4.0)
+    rubocop (0.57.1)
+      jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.5)
       powerpack (~> 0.1)
