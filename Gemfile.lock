@@ -10,11 +10,11 @@ PATH
   remote: .
   specs:
     hanami-events-cloud_pubsub (0.2.1)
-      dry-configurable
+      dry-configurable (~> 0.7.0)
       google-cloud-pubsub (~> 0.30.2)
-      hanami-cli
-      hanami-events
-      rack
+      hanami-cli (~> 0.2.0)
+      hanami-events (~> 0)
+      rack (~> 2.0.5)
 
 GEM
   remote: https://rubygems.org/
