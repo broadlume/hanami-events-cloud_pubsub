@@ -13,6 +13,13 @@ module Hanami
     module CloudPubsub
       extend Dry::Configurable
 
+      setting :subscriber, reader: true do
+        setting :streams, 4
+        setting :threads do
+          setting :callback, 8
+          setting :push, 4
+        end
+      end
       setting :project_id, reader: true
       setting :logger, Logger.new(STDOUT), reader: true
       setting :subscriptions_loader, proc {

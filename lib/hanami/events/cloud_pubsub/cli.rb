@@ -2,6 +2,7 @@
 
 require 'hanami/cli'
 require 'hanami/events/cloud_pubsub'
+require 'hanami/events/cloud_pubsub/health_check_server'
 
 module Hanami
   module Events
@@ -13,6 +14,13 @@ module Hanami
 
           # Command to run the worker
           class Run < Hanami::CLI::Command
+            attr_reader :runner
+
+            def initialize(*args)
+              super
+              @event_queue = Queue.new
+            end
+
             option :emulator,
                    type: :boolean,
                    default: false,
@@ -35,6 +43,7 @@ module Hanami
               load_subscriptions
               setup_signal_handlers
               start_runner
+              start_server
               sleep_forever
             end
 
@@ -49,18 +58,18 @@ module Hanami
               CloudPubsub.setup
             end
 
-            def sleep_forever
-              thread = Thread.new do
-                loop do
-                  event = @queue.pop
-                  event.call
-                end
-              end
+            def start_server
+              server = HealthCheckServer.new(runner, logger)
+              on_shutdown = proc { @event_queue << proc { shutdown } }
+              server.run_in_background(on_shutdown: on_shutdown)
+              server
+            end
 
-              sleep
-            rescue Interrupt
-              thread.kill
-              shutdown
+            def sleep_forever
+              until finished_shutting_down?
+                event = @event_queue.pop
+                event.call
+              end
             end
 
             def load_config
@@ -72,7 +81,7 @@ module Hanami
             def start_runner
               logger.debug 'Running in emulator mode' if @emulator
               logger.info "Starting worker (pid: #{Process.pid})"
-              @runner.start
+              runner.start
             end
 
             def parse_opts(opts)
@@ -100,24 +109,20 @@ module Hanami
             end
 
             def setup_signal_handlers
-              @queue = Queue.new
-
-              Signal.trap('TSTP') do
-                @queue << proc { @runner.pause }
-              end
-
-              Signal.trap('CONT') do
-                @queue << proc { @runner.start }
-              end
-
-              Signal.trap('TTIN') do
-                @queue << proc { @runner.print_debug_info }
-              end
+              Signal.trap('TSTP') { @event_queue << runner.method(:pause) }
+              Signal.trap('TTIN') { @event_queue << runner.method(:print_debug_info) }
+              Signal.trap('INT')  { @event_queue << method(:shutdown) }
             end
 
             def shutdown
               STDOUT.flush
-              @runner.gracefully_shutdown
+              runner.gracefully_shutdown
+            ensure
+              @finished_shutting_down = true
+            end
+
+            def finished_shutting_down?
+              @finished_shutting_down == true
             end
           end
 

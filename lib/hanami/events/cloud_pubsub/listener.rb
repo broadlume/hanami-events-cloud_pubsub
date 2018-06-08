@@ -14,7 +14,8 @@ module Hanami
                     :subscriber_id,
                     :logger,
                     :handler,
-                    :event_name
+                    :event_name,
+                    :subscriber_opts
 
         def initialize(topic:, logger:, handler:, event_name:, subscriber_id:)
           @topic = topic
@@ -22,12 +23,13 @@ module Hanami
           @handler = handler
           @event_name = event_name
           @subscriber_id = subscriber_id
+          @subscriber_opts = CloudPubsub.config.subscriber.to_h
         end
 
         def register
           subscription = subscription_for(subscriber_id)
 
-          listener = subscription.listen do |message|
+          listener = subscription.listen(subscriber_opts) do |message|
             handle_message(message)
           end
 
@@ -97,7 +99,7 @@ module Hanami
         def subscription_for(name)
           topic.create_subscription(name)
         rescue Google::Cloud::AlreadyExistsError
-          # OK
+          topic.find_subscription(name)
         end
 
         def ensure_subscriber!

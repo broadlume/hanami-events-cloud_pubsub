@@ -10,6 +10,14 @@ RSpec.describe Hanami::Events::CloudPubsub do
     expect(Hanami::Events::CloudPubsub::VERSION).not_to be nil
   end
 
+  describe '.subscriber' do
+    it 'uses the same defaults a Google Cloud' do
+      sub_config = described_class.config.subscriber.to_h
+
+      expect(sub_config).to eql(streams: 4, threads: { push: 4, callback: 8 })
+    end
+  end
+
   describe '.logger' do
     it 'allows for a logger to be configured' do
       logger = :foo
