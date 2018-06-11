@@ -17,7 +17,7 @@ module Hanami
             ended_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             seconds = ended_at - started_at
             logger.info <<~MSG
-              Processed message(id: #{msg.id}) took #{seconds} seconds to process
+              Processed message(id: #{msg.message_id}) took #{seconds} seconds to process
             MSG
           end
 

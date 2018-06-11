@@ -8,7 +8,7 @@ module Hanami
       module Middleware
         RSpec.describe Logging do
           let(:test_logger) { double(info: true) }
-          let(:msg) { double(id: 123) }
+          let(:msg) { double(message_id: 123) }
           subject(:logging) { described_class.new(logger: test_logger) }
 
           it 'logs the about of time the event took' do
