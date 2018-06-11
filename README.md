@@ -1,5 +1,5 @@
-# Hanami::Events::CloudPubsub
-[![Build Status](https://travis-ci.org/adHawk/hanami-events-cloud_pubsub.svg?branch=master)](https://travis-ci.org/adHawk/hanami-events-cloud_pubsub) [![Maintainability](https://api.codeclimate.com/v1/badges/7341f70d4ed1d0bd7a5d/maintainability)](https://codeclimate.com/github/adHawk/hanami-events-cloud_pubsub/maintainability)
+# Hanami Events for Google Cloud Pub/sub
+[![Build Status](https://travis-ci.org/adHawk/hanami-events-cloud_pubsub.svg?branch=master)](https://travis-ci.org/adHawk/hanami-events-cloud_pubsub) [![Maintainability](https://api.codeclimate.com/v1/badges/7341f70d4ed1d0bd7a5d/maintainability)](https://codeclimate.com/github/adHawk/hanami-events-cloud_pubsub/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/7341f70d4ed1d0bd7a5d/test_coverage)](https://codeclimate.com/github/adHawk/hanami-events-cloud_pubsub/test_coverage)
 
 ## Installation
 
@@ -53,6 +53,14 @@ require 'config/environment'
 
 Hanami.boot
 
+class CustomMiddleware
+  def call(message)
+    puts 'Middleware started!'
+    yield
+    puts 'Middleware ended!'
+  end
+end
+
 Hanami::Events::CloudPubsub.configure do |config|
   # required
   config.subscriptions_loader = -> do
@@ -68,8 +76,9 @@ Hanami::Events::CloudPubsub.configure do |config|
   config.error_handlers << lambda do |err, message|
     Honeybadger.notify(err, context: message.attributes)
   end
-end
 
+  config.middleware << CustomMiddleware.new # must respond to #call
+end
 ```
 
 Then, run the worker process:
