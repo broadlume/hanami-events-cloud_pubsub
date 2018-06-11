@@ -7,9 +7,7 @@ module Hanami
       module Middleware
         # Middleware used for automatically acknowledging messages
         class AutoAcknowledge
-          attr_reader :logger
-
-          def initialize(logger:)
+          def initialize(logger: nil)
             @logger = logger
           end
 
@@ -37,6 +35,10 @@ module Hanami
               message.reject!
               logger.warn "Message(#{id}) was terminated from outside, rescheduling"
             end
+          end
+
+          def logger
+            @logger || CloudPubsub.logger
           end
         end
       end

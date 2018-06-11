@@ -18,14 +18,16 @@ module Hanami
 
           attr_reader :entries
 
-          def initialize
-            @entries = []
+          def initialize(*entries)
+            entries.each(&method(:ensure_callable))
+            @entries = entries
             yield self if block_given?
           end
 
           def <<(middleware)
             ensure_callable(middleware)
             entries << middleware
+            self
           end
 
           def shift

@@ -15,15 +15,22 @@ module Hanami
                     :logger,
                     :handler,
                     :event_name,
-                    :subscriber_opts
+                    :subscriber_opts,
+                    :middleware
 
-        def initialize(topic:, logger:, handler:, event_name:, subscriber_id:)
+        def initialize(topic:,
+                       logger:,
+                       handler:,
+                       event_name:,
+                       subscriber_id:,
+                       middleware: CloudPubsub.config.middleware)
           @topic = topic
           @logger = logger
           @handler = handler
           @event_name = event_name
           @subscriber_id = subscriber_id
           @subscriber_opts = CloudPubsub.config.subscriber.to_h
+          @middleware = middleware
         end
 
         def register
@@ -72,29 +79,12 @@ module Hanami
           run_handler(msg)
         end
 
-        #:reek:TooManyStatements
-        #:reek:DuplicateMethodCall
-        # rubocop:disable Metrics/MethodLength
         def run_handler(message)
-          succeeded = false
-          failed = false
-          handler.call(message)
-          succeeded = true
-        rescue Exception => err # rubocop:disable all
-          failed = true
+          middleware.invoke(message) { handler.call(message) }
+        rescue StandardError => err
           run_error_handlers(err, message)
-          raise err
-        ensure
-          id = message.message_id
-          if succeeded || failed
-            message.acknowledge!
-            logger.debug "Message(#{id}) was acknowledged"
-          else
-            message.reject!
-            logger.warn "Message(#{id}) was terminated from outside, rescheduling"
-          end
+          raise
         end
-        # rubocop:enable Metrics/MethodLength
 
         def subscription_for(name)
           topic.create_subscription(name)

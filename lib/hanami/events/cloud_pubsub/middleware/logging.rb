@@ -6,9 +6,7 @@ module Hanami
       module Middleware
         # Middleware used for logging useful information about an event
         class Logging
-          attr_reader :logger
-
-          def initialize(logger)
+          def initialize(logger: nil)
             @logger = logger
           end
 
@@ -21,6 +19,12 @@ module Hanami
             logger.info <<~MSG
               Processed message(id: #{msg.id}) took #{seconds} seconds to process
             MSG
+          end
+
+          private
+
+          def logger
+            @logger || CloudPubsub.logger
           end
         end
       end
