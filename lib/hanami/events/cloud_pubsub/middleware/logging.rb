@@ -12,13 +12,15 @@ module Hanami
             @logger = logger
           end
 
-          def call(*_args)
+          def call(msg, *_args)
             started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             yield
           ensure
             ended_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            total_time = ended_at - started_at
-            logger.info "Event took #{total_time} seconds to process"
+            seconds = ended_at - started_at
+            logger.info <<~MSG
+              Processed message(id: #{msg.id}) took #{seconds} seconds to process
+            MSG
           end
         end
       end
