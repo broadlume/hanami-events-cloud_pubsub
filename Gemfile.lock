@@ -76,7 +76,6 @@ GEM
     hanami-utils (1.2.0)
       concurrent-ruby (~> 1.0)
       transproc (~> 1.0)
-    jaro_winkler (1.5.1)
     json (2.1.0)
     jwt (2.1.0)
     little-plugger (1.1.4)
@@ -91,7 +90,7 @@ GEM
     parallel (1.12.1)
     parser (2.5.1.0)
       ast (~> 2.4.0)
-    powerpack (0.1.1)
+    powerpack (0.1.2)
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
@@ -113,8 +112,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.7.0)
     rspec-support (3.7.1)
-    rubocop (0.57.1)
-      jaro_winkler (~> 1.5.1)
+    rubocop (0.54.0)
       parallel (~> 1.10)
       parser (>= 2.5)
       powerpack (~> 0.1)
@@ -145,7 +143,7 @@ DEPENDENCIES
   pry
   rake (~> 12.3)
   rspec (~> 3.0)
-  rubocop
+  rubocop (~> 0.54.0)
   simplecov
 
 BUNDLED WITH

@@ -49,7 +49,7 @@ module Hanami
           end
 
           context 'failure' do
-            let(:handler) { proc { raise 'Oh no' } }
+            let(:handler) { proc { raise StandardError, 'Oh no' } }
             let(:error_handler) { double(:call) }
 
             before do
@@ -69,7 +69,7 @@ module Hanami
               expect(error_handler)
                 .to receive(:call)
                 .with(
-                  an_instance_of(RuntimeError),
+                  StandardError,
                   an_instance_of(Google::Cloud::Pubsub::ReceivedMessage)
                 )
 

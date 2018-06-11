@@ -10,6 +10,6 @@ gemspec
 group :test do
   gem 'hanami-events', github: 'ianks/events', branch: 'args-to-subscribe'
   gem 'pry'
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.54.0'
   gem 'simplecov', require: false
 end

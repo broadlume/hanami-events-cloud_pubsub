@@ -2,6 +2,9 @@
 
 require 'hanami/events'
 require 'hanami/events/cloud_pubsub/version'
+require 'hanami/events/cloud_pubsub/middleware/stack'
+require 'hanami/events/cloud_pubsub/middleware/logging'
+require 'hanami/events/cloud_pubsub/middleware/auto_acknowledge'
 require 'hanami/events/cloud_pubsub/runner'
 require 'hanami/events/cloud_pubsub/mixin'
 require 'google/cloud/pubsub'
@@ -45,6 +48,11 @@ module Hanami
           logger.error "Message(#{msg.message_id}) failed with exception #{err.inspect}"
         end
       ], reader: true
+
+      setting :middleware, Middleware::Stack.new(
+        Middleware::Logging.new,
+        Middleware::AutoAcknowledge.new
+      )
 
       def self.setup
         Hanami::Events::Adapter.register(:cloud_pubsub) do
