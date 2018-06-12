@@ -8,6 +8,26 @@ module Hanami
         RSpec.describe Stack do
           subject(:stack) { described_class.new }
 
+          describe '#prepend' do
+            it 'adds middleware to the stack' do
+              old_middleware = double(call: true)
+              new_middleware = double(call: true)
+              stack << old_middleware
+              stack.prepend new_middleware
+
+              expect(stack.entries.first).to eql(new_middleware)
+              expect(stack.entries.last).to eql(old_middleware)
+            end
+
+            it 'raises an error if the middleware does not respond to #call' do
+              middleware = double
+
+              expect do
+                stack.prepend middleware
+              end.to raise_error(Stack::InvalidMiddlewareError)
+            end
+          end
+
           describe '#<<' do
             it 'adds middleware to the stack' do
               middleware = double(call: true)

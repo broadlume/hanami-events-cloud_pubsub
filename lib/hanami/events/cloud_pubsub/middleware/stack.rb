@@ -30,6 +30,12 @@ module Hanami
             self
           end
 
+          def prepend(middleware)
+            ensure_callable(middleware)
+            entries.insert 0, middleware
+            self
+          end
+
           def shift
             @entries.shift
           end
