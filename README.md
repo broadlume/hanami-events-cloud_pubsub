@@ -13,6 +13,28 @@ And then execute:
 
     $ bundle
 
+Then, in your `config/environment.rb`, register the gem:
+
+```ruby
+# ...
+require_relative './../lib/flooring_stores'
+require_relative './../apps/web/application'
+require 'hanami/events/cloud_pubsub/components/register'
+# ...
+
+require 'hanami/events/cloud_pubsub/components/register' # <----
+```
+
+Configure the pubsub adapter how you want (optional):
+
+```ruby
+Hanami.configure do
+  environment :development do
+    pubsub project_id: 'emulator'
+  end
+end
+```
+
 ## Usage
 
 This gem is compatible with the
@@ -22,7 +44,7 @@ This gem is compatible with the
 should pass this:
 
 ```ruby
-$events.subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
+Hanami::Components['events'].subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
   puts "Deleted user: #{payload}"
 end
 ```
@@ -34,7 +56,7 @@ merged](https://github.com/hanami/events/pull/76)
 class WelcomeMailer
   include Hanami::Events::CloudPubsub::Mixin
 
-  subscribe_to $events, 'user.created', id: 'welcome-mailer'
+  subscribe_to Hanami::Components['events'], 'user.created', id: 'welcome-mailer'
 
   def call(payload)
     payload

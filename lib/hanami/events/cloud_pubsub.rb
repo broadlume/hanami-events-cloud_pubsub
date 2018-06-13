@@ -53,14 +53,6 @@ module Hanami
         Middleware::Logging.new,
         Middleware::AutoAcknowledge.new
       )
-
-      def self.setup
-        Hanami::Events::Adapter.register(:cloud_pubsub) do
-          require_relative 'adapter/cloud_pubsub'
-
-          ::Hanami::Events::Adapter::CloudPubsub
-        end
-      end
     end
   end
 end
