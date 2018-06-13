@@ -19,10 +19,9 @@ Then, in your `config/environment.rb`, register the gem:
 # ...
 require_relative './../lib/flooring_stores'
 require_relative './../apps/web/application'
-require 'hanami/events/cloud_pubsub/components/register'
 # ...
 
-require 'hanami/events/cloud_pubsub/components/register' # <----
+require 'hanami/events/cloud_pubsub/register' # <----
 ```
 
 Configure the pubsub adapter how you want (optional):
@@ -44,7 +43,7 @@ This gem is compatible with the
 should pass this:
 
 ```ruby
-Hanami::Components['events'].subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
+Hanami.events.subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
   puts "Deleted user: #{payload}"
 end
 ```
@@ -56,7 +55,7 @@ merged](https://github.com/hanami/events/pull/76)
 class WelcomeMailer
   include Hanami::Events::CloudPubsub::Mixin
 
-  subscribe_to Hanami::Components['events'], 'user.created', id: 'welcome-mailer'
+  subscribe_to Hanami.events, 'user.created', id: 'welcome-mailer'
 
   def call(payload)
     payload
