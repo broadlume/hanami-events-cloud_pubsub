@@ -109,9 +109,10 @@ module Hanami
             end
 
             def setup_signal_handlers
-              Signal.trap('TSTP') { @event_queue << runner.method(:pause) }
               Signal.trap('TTIN') { @event_queue << runner.method(:print_debug_info) }
               Signal.trap('INT')  { @event_queue << method(:shutdown) }
+              Signal.trap('TERM') { @event_queue << method(:shutdown) }
+              Signal.trap('TSTP') { @event_queue << runner.method(:shutdown) }
             end
 
             def shutdown
