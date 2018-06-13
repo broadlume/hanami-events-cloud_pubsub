@@ -37,11 +37,11 @@ module Hanami
         end
 
         def with_server
-          server.run_in_background
+          thr = Thread.new { server.start }
           wait_for_server
           yield
         ensure
-          server.shutdown
+          thr.kill
         end
 
         def wait_for_server
