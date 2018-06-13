@@ -25,11 +25,8 @@ module Hanami
         # Will be called on TSTP
         #
         # Stop processing new events (unsubscribe from topics, etc)
-        #
-        # For example, if you needed to restart a Redis server you could first
-        # call pause to allow for a safe restart of the runner.
-        def pause
-          logger.info 'Pausing CloudPubsub runner'
+        def stop
+          logger.info 'Stopping CloudPubsub listeners'
           adapter.listeners.each(&:stop)
           self
         end
@@ -40,7 +37,7 @@ module Hanami
         # waiting for messages to finish processing, etc. If this method succesfully
         # runs, there should be no potential for undefined behavior.
         def gracefully_shutdown
-          pause
+          stop
           logger.info "Gracefully shutting down CloudPubsub runner: #{self}"
           sleep_for_a_bit
           adapter.flush_messages

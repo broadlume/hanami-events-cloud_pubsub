@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rack'
+require 'webrick'
 
 module Hanami
   module Events
@@ -13,44 +13,44 @@ module Hanami
         end
 
         def start
-          @logger.info 'Starting healthcheck server on port 0.0.0.0:8080'
+          logger.info 'Starting healthcheck server on port 0.0.0.0:8080'
           server.start
         end
 
-        def run_in_background(on_shutdown:)
-          log_error = proc { |err| logger.error(err.message) }
+        def shutdown
+          logger.info 'Shutting down healthcheck server'
+          server.shutdown
+        end
 
-          Concurrent::Promise.execute(on_reject: log_error) do
-            server.start
-            on_shutdown.call(server)
+        def run_in_background(on_shutdown: nil)
+          prom = Concurrent::Promise.execute do
+            start
+            on_shutdown&.call(server)
           end
+
+          prom.catch { |err| logger.error(err) }
         end
 
         private
 
+        attr_reader :logger, :runner
+
         def server
-          @server ||= Rack::Server.new(
-            Port: 8080,
-            Host: '0.0.0.0',
-            quiet: true,
-            app: app
-          )
+          @server ||=
+            WEBrick::HTTPServer.new(
+              Port: 8080,
+              BindAddress: '0.0.0.0',
+              Logger: WEBrick::Log.new('/dev/null'),
+              AccessLog: []
+            ).tap do |srv|
+              srv.mount_proc '/', method(:health_endpoint)
+            end
         end
 
-        def app
-          health_endpoint = method(:health_endpoint)
-
-          Rack::Builder.app do
-            run health_endpoint
-          end
-        end
-
-        def health_endpoint(_env)
-          status = @runner.healthy? ? 200 : 503
-          headers = { 'Content-Type' => 'text/html' }
-          body = [status.to_s]
-
-          [status, headers, body]
+        def health_endpoint(_req, res)
+          res['Content-Type'] = 'text/plain'
+          res.status = runner.healthy? ? 200 : 503
+          res.body = res.status.to_s
         end
       end
     end

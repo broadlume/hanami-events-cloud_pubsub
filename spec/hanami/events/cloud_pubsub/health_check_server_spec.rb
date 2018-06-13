@@ -9,7 +9,7 @@ module Hanami
         let(:runner) { double(healthy?: true) }
         subject(:server) { described_class.new(runner, test_logger) }
 
-        describe '#start' do
+        describe '#run_in_background' do
           it 'returns 200 code when runner is healthy' do
             with_server do
               expect(server_response.code).to eql('200')
@@ -23,16 +23,13 @@ module Hanami
               expect(server_response.code).to eql('503')
             end
           end
-        end
 
-        describe '#run_in_background' do
           it 'calls the :on_shutdown handler' do
             on_shutdown = double(call: true)
 
             prom = server.run_in_background(on_shutdown: on_shutdown)
             wait_for_server
-            parent_pid = Process.pid
-            fork { Process.kill 'INT', parent_pid }
+            server.shutdown
             prom.value
 
             expect(on_shutdown).to have_received(:call)
@@ -40,15 +37,21 @@ module Hanami
         end
 
         def with_server
-          pid = fork { server.start }
+          server.run_in_background
           wait_for_server
           yield
         ensure
-          Process.kill 'INT', pid
+          server.shutdown
         end
 
         def wait_for_server
-          loop { break if port_open? }
+          tries = 0
+          loop do
+            sleep 0.2
+            break if port_open?
+            raise 'server did not start' if tries > 10
+            tries += 1
+          end
         end
 
         def port_open?

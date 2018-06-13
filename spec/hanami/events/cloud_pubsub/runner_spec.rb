@@ -44,15 +44,15 @@ module Hanami
           end
         end
 
-        describe '#pause' do
+        describe '#stop' do
           it 'stops all the listeners' do
             expect(listener).to receive(:stop)
-            runner.pause
+            runner.stop
           end
 
           it 'logs a message' do
-            expect(logger).to receive(:info).with(/Pausing/)
-            runner.pause
+            expect(logger).to receive(:info).with(/Stopping/)
+            runner.stop
           end
         end
 
