@@ -9,19 +9,6 @@ module Hanami
 
       subject(:adapter) { described_class.new(pubsub: pubsub) }
 
-      describe '#listen' do
-        it 'does not listen by default' do
-          expect(adapter.subscribe('test', id: 'test') {}).to eql(false)
-          expect(adapter.subscribers).to be_empty
-        end
-
-        it 'can be explicitly turned on' do
-          adapter.listen
-
-          expect(adapter).to be_listening
-        end
-      end
-
       describe '#broadcast' do
         let(:topic) { double(publish_async: true) }
         let(:payload) { { test: true } }

@@ -41,8 +41,6 @@ module Hanami
         # @param event_name [Symbol, String] the event name
         # @param block [Block] to execute when event is broadcasted
         def subscribe(event_name, id:, &block)
-          return false unless listening?
-
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
 
           @subscribers << Subscriber.new(event_name, block, logger)
@@ -54,15 +52,6 @@ module Hanami
         def flush_messages
           pubs = topic_registry.values.map(&:async_publisher).compact
           pubs.each(&:stop).map(&:wait!)
-        end
-
-        def listen(should_listen = true)
-          @listen = should_listen
-          self
-        end
-
-        def listening?
-          !!@listen # rubocop:disable Style/DoubleNegation
         end
 
         private
