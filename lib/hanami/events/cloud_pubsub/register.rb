@@ -2,7 +2,7 @@
 
 require 'hanami/components'
 require 'hanami/configuration'
-require_relative './components/integration'
+require_relative 'integration'
 
 module Hanami
   module Events

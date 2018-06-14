@@ -28,7 +28,7 @@ module Hanami
 
             option :config,
                    type: :string,
-                   default: './config/cloudpubsub.rb',
+                   default: './config/boot.rb',
                    desc: 'Config file which is loaded before starting the runner'
 
             def call(opts)
