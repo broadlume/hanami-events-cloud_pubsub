@@ -7,7 +7,7 @@ require_relative 'integration'
 module Hanami
   module Events
     module CloudPubsub
-      # Register all the things needs to integrate with hanami
+      # Register all the things needed to integrate with hanami
       module Register
         Integration::Setup.setup
       end
