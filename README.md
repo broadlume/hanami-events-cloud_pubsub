@@ -3,21 +3,16 @@
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
 ```ruby
-gem 'hanami-events-cloud_pubsub'
+bundle add hanami-events-cloud_pubsub
 ```
 
-And then execute:
-
-    $ bundle
-
-Then, in your `config/environment.rb`, register the gem:
+If using Hanami, register the adapter in your `config/environment.rb`:
 
 ```ruby
+# config/environment.rb
 # ...
-require_relative './../lib/flooring_stores'
+require_relative './../lib/my_app'
 require_relative './../apps/web/application'
 # ...
 
@@ -27,8 +22,11 @@ require 'hanami/events/cloud_pubsub/register' # <----
 Configure the pubsub adapter how you want (optional):
 
 ```ruby
+# config/environment.rb
+
 Hanami.configure do
   environment :development do
+    # All config here is passed to Google::Cloud::Pubsub
     pubsub project_id: 'emulator'
   end
 end
@@ -48,22 +46,7 @@ Hanami.events.subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
 end
 ```
 
-2. If you want mixin behavior, follow this example until [this patch is
-merged](https://github.com/hanami/events/pull/76)
-
-```ruby
-class WelcomeMailer
-  include Hanami::Events::CloudPubsub::Mixin
-
-  subscribe_to Hanami.events, 'user.created', id: 'welcome-mailer'
-
-  def call(payload)
-    payload
-  end
-end
-```
-
-3. Responding to events is done in a different process via the CLI.
+2. Responding to events is done in a different process via the CLI.
 
 First, create a config file:
 

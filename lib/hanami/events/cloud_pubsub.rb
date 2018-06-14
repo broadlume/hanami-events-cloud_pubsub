@@ -6,7 +6,6 @@ require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
 require 'hanami/events/cloud_pubsub/middleware/auto_acknowledge'
 require 'hanami/events/cloud_pubsub/runner'
-require 'hanami/events/cloud_pubsub/mixin'
 require 'google/cloud/pubsub'
 require 'dry-configurable'
 
