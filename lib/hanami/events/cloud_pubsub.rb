@@ -22,6 +22,11 @@ module Hanami
           setting :push, 4
         end
       end
+
+      setting :pubsub do |conf_hash|
+        conf_hash.each { |key, val| Google::Cloud::Pubsub.configure[key] = val }
+      end
+
       setting :project_id, reader: true
       setting :logger, Logger.new(STDOUT), reader: true
       setting :subscriptions_loader, proc {

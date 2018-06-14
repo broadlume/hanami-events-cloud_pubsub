@@ -22,40 +22,41 @@ module Hanami
             end
           end
 
-          # rubocop:disable Metrics/MethodLength
           def register_hanami_component
             ::Hanami::Components.register 'events' do
-              requires 'logger'
+              requires 'logger', 'code'
 
               prepare { require 'hanami/events/cloud_pubsub' }
 
-              resolve do |configuration|
-                conf = configuration.cloud_pubsub
-                opts = {}
-                opts[:project_id] = conf.project_id if conf.project_id
+              resolve do |conf|
+                CloudPubsub.configure do |config|
+                  conf.cloud_pubsub.each { |blk| blk.call(config) }
+                end
 
                 ::Hanami::Events.initialize(
                   :cloud_pubsub,
-                  pubsub: Google::Cloud::Pubsub.new(opts),
+                  pubsub: Google::Cloud::Pubsub.new,
                   logger: Hanami::Components['logger']
                 )
               end
             end
           end
-          # rubocop:enable Metrics/MethodLength
 
           def hook_into_all
+            require 'hanami/components'
             # Unfortunately, hanami does not provide a way to add the component
             # requirements easily, so we take the old requirements and append 'events'
             requirements_for_all = ::Hanami::Components.component('all').send(:requirements)
 
             ::Hanami::Components.register 'all' do
-              requires 'events', *requirements_for_all
+              requires(*requirements_for_all, 'events')
               resolve { true }
             end
           end
 
           def add_configuration_helpers
+            require 'hanami/utils/load_paths'
+            require 'hanami/configuration'
             ::Hanami::Configuration.include(Integration::Configuration)
             ::Hanami.extend Integration::EasyAccess
           end
@@ -67,13 +68,19 @@ module Hanami
         #   # config/environment.rb
         #   Hanami.configure do
         #     environment :development do
-        #       pubsub project_id: 'emulator'
+        #       cloud_pubsub do |conf|
+        #         conf.pubsub = { project_id: 'emulator' }
+        #       end
         #     end
         #   end
         module Configuration
           def cloud_pubsub(&blk)
-            return CloudPubsub.configure(&blk) if block_given?
-            CloudPubsub.config
+            if block_given?
+              settings[:cloud_pubsub] ||= []
+              settings[:cloud_pubsub] << blk
+            end
+
+            settings[:cloud_pubsub]
           end
         end
 
