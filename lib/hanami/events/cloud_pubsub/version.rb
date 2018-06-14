@@ -3,7 +3,7 @@
 module Hanami
   module Events
     module CloudPubsub
-      VERSION = '0.2.7'
+      VERSION = '1.0.0'
     end
   end
 end
