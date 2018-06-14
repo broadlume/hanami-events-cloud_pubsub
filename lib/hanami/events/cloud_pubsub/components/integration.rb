@@ -29,13 +29,14 @@ module Hanami
 
               prepare { require 'hanami/events/cloud_pubsub' }
 
-              resolve do |conf|
-                settings = conf.send :settings
-                pubsub_settings = settings.fetch(:pubsub, {})
+              resolve do |configuration|
+                conf = configuration.cloud_pubsub
+                opts = {}
+                opts[:project_id] = conf.project_id if conf.project_id
 
                 ::Hanami::Events.initialize(
                   :cloud_pubsub,
-                  pubsub: Google::Cloud::Pubsub.new(pubsub_settings),
+                  pubsub: Google::Cloud::Pubsub.new(opts),
                   logger: Hanami::Components['logger']
                 )
               end
@@ -70,12 +71,9 @@ module Hanami
         #     end
         #   end
         module Configuration
-          def pubsub(value = nil)
-            if value.nil?
-              settings.fetch(:pubsub, nil)
-            else
-              settings[:pubsub] = value
-            end
+          def cloud_pubsub(&blk)
+            return CloudPubsub.configure(&blk) if block_given?
+            CloudPubsub.config
           end
         end
 

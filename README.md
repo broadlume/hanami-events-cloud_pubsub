@@ -26,8 +26,11 @@ Configure the pubsub adapter how you want (optional):
 
 Hanami.configure do
   environment :development do
-    # All config here is passed to Google::Cloud::Pubsub
-    pubsub project_id: 'emulator'
+    cloud_pubsub do |config|
+      config.project_id = 'emulator'
+      config.logger = Hanami.logger
+      # ...
+    end
   end
 end
 ```
