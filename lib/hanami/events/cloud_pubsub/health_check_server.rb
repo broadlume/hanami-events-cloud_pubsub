@@ -13,7 +13,7 @@ module Hanami
         end
 
         def start
-          logger.info 'Starting healthcheck server on port 0.0.0.0:8080'
+          logger.info 'Starting healthcheck server on port 0.0.0.0:8081'
           server.start
         end
 
@@ -38,7 +38,7 @@ module Hanami
         def server
           @server ||=
             WEBrick::HTTPServer.new(
-              Port: 8080,
+              Port: 8081,
               BindAddress: '0.0.0.0',
               Logger: WEBrick::Log.new('/dev/null'),
               AccessLog: []

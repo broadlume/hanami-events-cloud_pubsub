@@ -55,13 +55,13 @@ module Hanami
         end
 
         def port_open?
-          Socket.tcp('localhost', 8080, connect_timeout: 1) && true
+          Socket.tcp('localhost', 8081, connect_timeout: 1) && true
         rescue StandardError
           false
         end
 
         def server_response
-          Net::HTTP.get_response(URI.parse('http://localhost:8080'))
+          Net::HTTP.get_response(URI.parse('http://localhost:8081'))
         end
       end
     end
