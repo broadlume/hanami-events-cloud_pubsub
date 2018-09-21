@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'dry-configurable', '~> 0.7.0'
-  spec.add_dependency 'google-cloud-pubsub', '~> 0.30.2'
+  spec.add_dependency 'google-cloud-pubsub', '~> 0.33.0'
   spec.add_dependency 'hanami-cli', '~> 0.2.0'
   spec.add_dependency 'hanami-events', '~> 0'
 
