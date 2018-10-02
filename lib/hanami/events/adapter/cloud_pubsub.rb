@@ -39,6 +39,8 @@ module Hanami
         # Subscribes block for selected event
         #
         # @param event_name [Symbol, String] the event name
+        # @param id [String] A unique identifier for the subscriber
+        # @param subscriber_opts [String] Additional options for the subscriber
         # @param block [Block] to execute when event is broadcasted
         def subscribe(event_name, id:, **subscriber_opts, &block)
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
