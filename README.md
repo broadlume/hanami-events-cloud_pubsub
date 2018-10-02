@@ -49,6 +49,13 @@ Hanami.events.subscribe('user.deleted', id: 'my-subscriber-id') do |payload|
 end
 ```
 
+Additional options will be passed to `Google::Cloud::Pubsub::Subscription#listen`:
+```ruby
+Hanami.events.subscribe('foo', id: 'bar', deadline: 30) do |payload|
+  sleep 29 # message will finish before deadline
+end
+```
+
 2. Responding to events is done in a different process via the CLI.
 
 First, create a config file:
