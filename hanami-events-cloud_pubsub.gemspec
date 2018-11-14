@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'dry-configurable', '~> 0.7.0'
   spec.add_dependency 'google-cloud-pubsub', '~> 0.33.0'
-  spec.add_dependency 'hanami-cli', '~> 0.2.0'
+  spec.add_dependency 'hanami-cli', '>= 0.2.0'
   spec.add_dependency 'hanami-events', '~> 0'
 
   spec.add_development_dependency 'bundler', '~> 1.16'
