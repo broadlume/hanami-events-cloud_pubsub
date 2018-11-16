@@ -27,8 +27,9 @@ Configure the pubsub adapter how you want (optional):
 Hanami.configure do
   environment :development do
     cloud_pubsub do |config|
-      config.pubsub = { project_id: 'emulator' }
-      config.logger = Hanami.logger
+      config.pubsub = { project_id: 'emulator' } # optional
+      config.logger = Hanami.logger # optional
+      config.namespace = :staging # optional
       # ...
     end
   end
