@@ -26,7 +26,8 @@ module Hanami
         #
         # @param event [Symbol, String] the event name
         # @param payload [Hash] the event data
-        def broadcast(event_name, payload)
+        def broadcast(name, payload)
+          event_name = namespaced(name)
           topic = topic_for event_name
           payload = serializer.serialize(payload)
           attributes = { id: SecureRandom.uuid, event_name: event_name }
@@ -42,13 +43,16 @@ module Hanami
         # @param id [String] A unique identifier for the subscriber
         # @param subscriber_opts [String] Additional options for the subscriber
         # @param block [Block] to execute when event is broadcasted
-        def subscribe(event_name, id:, **subscriber_opts, &block)
+        def subscribe(name, id:, **subscriber_opts, &block)
+          event_name = namespaced(name)
+          namespaced_id = namespaced(id)
+
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
 
           @subscribers << Subscriber.new(event_name, block, logger)
           topic = topic_for event_name
 
-          register_listener(event_name, topic, id, subscriber_opts)
+          register_listener(event_name, topic, namespaced_id, subscriber_opts)
         end
 
         def flush_messages
@@ -94,6 +98,10 @@ module Hanami
             begin
               @pubsub.find_topic(event_name) || @pubsub.create_topic(event_name)
             end
+        end
+
+        def namespaced(val, sep: '.')
+          [Hanami::Events::CloudPubsub.namespace, val].compact.join(sep)
         end
       end
     end

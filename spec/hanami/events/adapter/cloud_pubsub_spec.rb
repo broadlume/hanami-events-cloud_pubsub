@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './../../../../lib/hanami/events/adapter/cloud_pubsub'
+require 'dry/configurable/test_interface'
 
 module Hanami
   module Events
@@ -18,6 +19,9 @@ module Hanami
       before do
         allow(adapter).to receive(:topic_for).and_return(topic)
       end
+
+      before { CloudPubsub.enable_test_interface }
+      after {  CloudPubsub.reset_config }
 
       describe '#broadcast' do
         let(:payload) { { test: true } }
@@ -45,11 +49,41 @@ module Hanami
 
           adapter.broadcast('test', payload)
         end
+
+        it 'broadcasts to the correct namespace' do
+          CloudPubsub.configure do |config|
+            config.namespace = :some_namespace
+          end
+
+          expect(adapter)
+            .to receive(:topic_for)
+            .with('some_namespace.test')
+            .and_return(topic)
+
+          expect(topic)
+            .to receive(:publish_async)
+            .with(payload.to_json, anything)
+
+          adapter.broadcast('test', payload)
+        end
       end
 
       describe '#subscribe' do
         it 'passes the subscriber_opts to listen' do
           expect(sub).to receive(:listen).with(a_hash_including(deadline: 24))
+          adapter.subscribe('test_event', id: 'test', deadline: 24)
+        end
+
+        it 'registers a listener for the correct namespace' do
+          CloudPubsub.configure do |config|
+            config.namespace = :some_namespace
+          end
+
+          expect(adapter)
+            .to receive(:register_listener)
+            .with('some_namespace.test_event', topic, 'some_namespace.test', anything)
+            .and_call_original
+
           adapter.subscribe('test_event', id: 'test', deadline: 24)
         end
       end
