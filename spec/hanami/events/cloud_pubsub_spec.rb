@@ -38,4 +38,10 @@ RSpec.describe Hanami::Events::CloudPubsub do
       )
     end
   end
+
+  describe '.namespace' do
+    it 'defaults to nil' do
+      expect(described_class.namespace).to eql(nil)
+    end
+  end
 end

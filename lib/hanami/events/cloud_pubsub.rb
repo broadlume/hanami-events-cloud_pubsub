@@ -15,6 +15,8 @@ module Hanami
     module CloudPubsub
       extend Dry::Configurable
 
+      setting :namespace, reader: true
+
       setting :subscriber, reader: true do
         setting :streams, 4
         setting :threads do
