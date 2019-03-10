@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
-require 'hanami/events/cloud_pubsub/middleware/auto_acknowledge'
+require 'hanami/events/cloud_pubsub/middleware/auto_retry'
 
 module Hanami
   module Events
     module CloudPubsub
       module Middleware
-        RSpec.describe AutoAcknowledge do
-          let(:msg) { double(acknowledge!: true, reject!: true, message_id: 123) }
+        RSpec.describe AutoRetry do
+          let(:msg) do
+            instance_double(Google::Cloud::Pubsub::ReceivedMessage,
+                            modify_ack_deadline!: true,
+                            acknowledge!: true,
+                            reject!: true,
+                            message_id: 123)
+          end
 
           subject(:middleware) do
             described_class.new(logger: test_logger)
@@ -20,9 +26,11 @@ module Hanami
             middleware.call(msg) { true }
           end
 
-          it 'acknowledges the message on error' do
-            expect(msg).to receive(:acknowledge!)
-            expect(test_logger).to receive(:debug).with(/was acknowledged/)
+          it 'modifies the ack deadline on failure' do
+            expect(msg).to receive(:modify_ack_deadline!)
+            expect(test_logger)
+              .to receive(:debug)
+              .with(/failed, added 60 seconds of delay to ack deadline/)
 
             begin
               middleware.call(msg) { raise }
