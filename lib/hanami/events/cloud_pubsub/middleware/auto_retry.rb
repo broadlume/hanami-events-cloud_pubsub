@@ -6,7 +6,7 @@ module Hanami
       # Middleware
       module Middleware
         # Middleware used for automatically acknowledging messages
-        class AutoAcknowledge
+        class AutoRetry
           def initialize(logger: nil)
             @logger = logger
           end
@@ -28,9 +28,14 @@ module Hanami
           def ack_or_reject(message, succeeded, failed)
             id = message.message_id
 
-            if succeeded || failed
+            if succeeded
               message.acknowledge!
               logger.debug "Message(#{id}) was acknowledged"
+            elsif failed
+              seconds = calculate_backoff_seconds(message)
+              success = message.modify_ack_deadline!(seconds)
+              msg = "added #{success ? seconds : 0} seconds of delay to ack deadline"
+              logger.debug "Message(#{id}) failed, #{msg}" if success
             else
               message.reject!
               logger.warn "Message(#{id}) was terminated from outside, rescheduling"
@@ -39,6 +44,11 @@ module Hanami
 
           def logger
             @logger || CloudPubsub.logger
+          end
+
+          def calculate_backoff_seconds(_message)
+            # Figure out a way to keep track of retries
+            60
           end
         end
       end

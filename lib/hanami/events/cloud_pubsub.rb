@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'concurrent/async'
 require 'hanami/events'
 require 'hanami/events/cloud_pubsub/version'
 require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
-require 'hanami/events/cloud_pubsub/middleware/auto_acknowledge'
+require 'hanami/events/cloud_pubsub/middleware/auto_retry'
 require 'hanami/events/cloud_pubsub/runner'
 require 'google/cloud/pubsub'
 require 'dry-configurable'
@@ -57,7 +58,7 @@ module Hanami
 
       setting :middleware, Middleware::Stack.new(
         Middleware::Logging.new,
-        Middleware::AutoAcknowledge.new
+        Middleware::AutoRetry.new
       )
     end
   end
