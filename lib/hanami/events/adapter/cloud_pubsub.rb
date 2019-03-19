@@ -96,7 +96,7 @@ module Hanami
         def topic_for(name)
           @topic_registry[name.to_s] ||= begin
             @pubsub.find_topic(name) ||
-              (CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
+              (Hanami::Events::CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
               raise(CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
           end
         end
