@@ -10,9 +10,9 @@ module Hanami
             @logger = logger
           end
 
-          def call(msg, *_args)
+          def call(msg, opts = {})
             started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            yield
+            yield(opts)
           ensure
             ended_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             seconds = ended_at - started_at

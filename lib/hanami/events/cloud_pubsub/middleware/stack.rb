@@ -43,11 +43,11 @@ module Hanami
           def invoke(*base_args)
             stack = entries.dup
 
-            traverse_stack = lambda do |*args|
+            traverse_stack = proc do |**opts|
               if stack.empty?
-                yield(*base_args, *args)
+                yield(*base_args, **opts)
               else
-                stack.shift.call(*base_args, *args, &traverse_stack)
+                stack.shift.call(*base_args, **opts, &traverse_stack)
               end
             end
 

@@ -50,27 +50,31 @@ module Hanami
             let(:final_call_stub) { double(call: true) }
             let(:first_call_stub) { double(call: true) }
             let(:second_call_stub) { double(call: true) }
+            let(:third_call_stub) { double(call: true) }
             let(:middleware) do
               Class.new do
-                def initialize(recorder)
+                def initialize(recorder, **opts)
                   @recorder = recorder
+                  @opts = opts
                 end
 
-                def call(*args)
-                  @recorder.call(*args)
-                  yield test: true
+                def call(*args, **opts)
+                  @recorder.call(*args, **opts.merge(@opts))
+                  yield(*args, **opts.merge(@opts))
                 end
               end
             end
 
             it 'passes args to each middleware in the stack' do
               stack << middleware.new(first_call_stub)
-              stack << middleware.new(second_call_stub)
+              stack << middleware.new(second_call_stub, test: true)
+              stack << middleware.new(third_call_stub)
 
               stack.invoke(*arguments) { |*args| final_call_stub.call(*args) }
 
-              expect(first_call_stub).to have_received(:call).with(*arguments)
+              expect(first_call_stub).to have_received(:call).with(*arguments, {})
               expect(second_call_stub).to have_received(:call).with(*arguments, test: true)
+              expect(third_call_stub).to have_received(:call).with(*arguments, test: true)
               expect(final_call_stub).to have_received(:call).with(*arguments, test: true)
             end
 

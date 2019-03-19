@@ -14,7 +14,7 @@ module Hanami
           def call(message, args = {})
             succeeded = false
             failed = false
-            yield
+            yield(args)
             succeeded = true
           rescue StandardError => err
             failed = true
