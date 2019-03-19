@@ -93,11 +93,12 @@ module Hanami
           @serializer ||= Hanami::Events::Serializer[@serializer_type].new
         end
 
-        def topic_for(event_name)
-          @topic_registry[event_name.to_s] ||=
-            begin
-              @pubsub.find_topic(event_name) || @pubsub.create_topic(event_name)
-            end
+        def topic_for(name)
+          @topic_registry[name.to_s] ||= begin
+            @pubsub.find_topic(name) ||
+              (CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
+              raise(CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
+          end
         end
 
         def namespaced(val, sep: '.')

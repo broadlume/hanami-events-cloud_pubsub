@@ -11,7 +11,7 @@ module Hanami
       let(:topic) do
         instance_double(Google::Cloud::Pubsub::Topic,
                         publish_async: true,
-                        create_subscription: sub)
+                        find_subscription: sub)
       end
 
       subject(:adapter) { described_class.new(pubsub: pubsub) }

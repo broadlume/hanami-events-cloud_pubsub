@@ -30,6 +30,9 @@ Hanami.configure do
       config.pubsub = { project_id: 'emulator' } # optional
       config.logger = Hanami.logger # optional
       config.namespace = :staging # optional
+      config.auto_create_topics = false # optional
+      config.auto_create_subscriptions = false # optional
+      config.error_handlers << ->(err, message) { MyErrorReporter.report(err) }
       # ...
     end
   end
