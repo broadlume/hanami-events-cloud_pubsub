@@ -39,6 +39,29 @@ module Hanami
             end
           end
 
+          it 'uses a backoff formula if attempts are given' do
+            expect(msg).to receive(:modify_ack_deadline!)
+            expect(test_logger)
+              .to receive(:debug)
+              .with(/failed, added \d\d\d seconds of delay to ack deadline/)
+
+            expect(test_logger)
+              .to receive(:debug)
+              .with(/failed, added 600 seconds of delay to ack deadline/)
+
+            begin
+              middleware.call(msg, attempts: 4) { raise }
+            rescue StandardError
+              nil
+            end
+
+            begin
+              middleware.call(msg, attempts: 20) { raise }
+            rescue StandardError
+              nil
+            end
+          end
+
           it 'does not acknowledge the message on outside termination' do
             expect(msg).not_to receive(:acknowledge!)
 
