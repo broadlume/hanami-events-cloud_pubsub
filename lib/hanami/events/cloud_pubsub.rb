@@ -7,6 +7,7 @@ require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
 require 'hanami/events/cloud_pubsub/middleware/auto_retry'
 require 'hanami/events/cloud_pubsub/runner'
+require 'hanami/events/cloud_pubsub/errors'
 require 'google/cloud/pubsub'
 require 'dry-configurable'
 
@@ -31,6 +32,8 @@ module Hanami
       end
 
       setting :project_id, reader: true
+      setting :auto_create_subscriptions, false, reader: true
+      setting :auto_create_topics, false, reader: true
       setting :logger, Logger.new(STDOUT), reader: true
       setting :subscriptions_loader, proc {
         abort <<~MSG

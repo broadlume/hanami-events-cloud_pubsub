@@ -9,7 +9,7 @@ module Hanami
       RSpec.describe Listener do
         let(:topic_name) { 'test-' + SecureRandom.hex(12) }
         let(:subscriber_id) { 'test-' + SecureRandom.hex(12) }
-        let(:topic) { pubsub.create_topic(topic_name) }
+        let(:topic) { pubsub.find_topic(topic_name) }
         let(:pubsub) { Google::Cloud::Pubsub.new }
         let(:logger) { test_logger }
 
@@ -30,6 +30,17 @@ module Hanami
                               handler: handler,
                               event_name: topic_name,
                               subscriber_id: subscriber_id)
+        end
+
+        around do |ex|
+          begin
+            topic = pubsub.create_topic(topic_name)
+            subscription = topic.create_subscription(subscriber_id)
+            ex.run
+          ensure
+            topic&.delete
+            subscription&.delete
+          end
         end
 
         describe '#start' do

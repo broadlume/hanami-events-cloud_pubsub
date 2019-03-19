@@ -58,7 +58,7 @@ module Hanami
 
                 def call(*args)
                   @recorder.call(*args)
-                  yield
+                  yield test: true
                 end
               end
             end
@@ -70,8 +70,8 @@ module Hanami
               stack.invoke(*arguments) { |*args| final_call_stub.call(*args) }
 
               expect(first_call_stub).to have_received(:call).with(*arguments)
-              expect(second_call_stub).to have_received(:call).with(*arguments)
-              expect(final_call_stub).to have_received(:call).with(*arguments)
+              expect(second_call_stub).to have_received(:call).with(*arguments, test: true)
+              expect(final_call_stub).to have_received(:call).with(*arguments, test: true)
             end
 
             it 'halts the chain if a middleware does not yield' do
