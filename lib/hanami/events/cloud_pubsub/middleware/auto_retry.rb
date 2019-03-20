@@ -7,8 +7,11 @@ module Hanami
       module Middleware
         # Middleware used for automatically acknowledging messages
         class AutoRetry
-          def initialize(logger: nil)
+          attr_reader :max_attempts
+
+          def initialize(logger: nil, max_attempts: 1200)
             @logger = logger
+            @max_attempts = max_attempts
           end
 
           def call(message, args = {})
@@ -26,20 +29,46 @@ module Hanami
           private
 
           def ack_or_reject(message, succeeded, failed, args)
-            id = message.message_id
-
             if succeeded
-              message.acknowledge!
-              logger.debug "Message(#{id}) was acknowledged"
+              handle_success(message, args)
+            elsif failed && max_attempts_reached?(args)
+              handle_max_attempts_reached(message, args)
             elsif failed
-              seconds = calculate_backoff_seconds(message, args)
-              success = message.modify_ack_deadline!(seconds)
-              msg = "added #{success ? seconds : 0} seconds of delay to ack deadline"
-              logger.debug "Message(#{id}) failed, #{msg}" if success
+              handle_failure(message, args)
             else
-              message.reject!
-              logger.warn "Message(#{id}) was terminated from outside, rescheduling"
+              handle_unfinished(message, args)
             end
+          end
+
+          def handle_success(message, _args)
+            message.acknowledge!
+            logger.debug "Message(#{message.message_id}) was acknowledged"
+          end
+
+          def max_attempts_reached?(args)
+            args.key?(:attempts) && args[:attempts] >= max_attempts
+          end
+
+          def handle_max_attempts_reached(message, _args)
+            id = message.message_id
+            msg = 'number of attempts exceeded max attempts ' \
+                  "of #{max_attempts}, acknowledging message"
+            logger.debug "Message(#{id}) failed, #{msg}"
+            message.acknowledge!
+          end
+
+          def handle_failure(message, args)
+            id = message.message_id
+            seconds = calculate_backoff_seconds(message, args)
+            success = message.modify_ack_deadline!(seconds)
+            msg = "added #{success ? seconds : 0} seconds of delay to ack deadline"
+            logger.debug "Message(#{id}) failed, #{msg}" if success
+          end
+
+          def handle_unfinished(message, _args)
+            id = message.message_id
+            message.reject!
+            logger.warn "Message(#{id}) was terminated from outside, rescheduling"
           end
 
           def logger
