@@ -62,6 +62,16 @@ module Hanami
             end
           end
 
+          it 'acknowledges the message when max attempts are reached' do
+            expect(msg).to receive(:acknowledge!)
+
+            begin
+              middleware.call(msg, attempts: 1200) { raise }
+            rescue StandardError
+              nil
+            end
+          end
+
           it 'does not acknowledge the message on outside termination' do
             expect(msg).not_to receive(:acknowledge!)
 
