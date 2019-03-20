@@ -40,14 +40,14 @@ module Hanami
             @entries.shift
           end
 
-          def invoke(*base_args)
+          def invoke(message)
             stack = entries.dup
 
-            traverse_stack = lambda do |*args|
+            traverse_stack = proc do |**opts|
               if stack.empty?
-                yield(*base_args, *args)
+                yield(message)
               else
-                stack.shift.call(*base_args, *args, &traverse_stack)
+                stack.shift.call(message, **opts, &traverse_stack)
               end
             end
 

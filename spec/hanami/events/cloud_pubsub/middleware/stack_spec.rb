@@ -46,32 +46,36 @@ module Hanami
           end
 
           describe '#invoke' do
-            let(:arguments) { %i[foo bar] }
-            let(:final_call_stub) { double(call: true) }
+            let(:message) { %i[foo bar] }
+            let(:handler) { double(call: true) }
             let(:first_call_stub) { double(call: true) }
             let(:second_call_stub) { double(call: true) }
+            let(:third_call_stub) { double(call: true) }
             let(:middleware) do
               Class.new do
-                def initialize(recorder)
+                def initialize(recorder, **opts)
                   @recorder = recorder
+                  @opts = opts
                 end
 
-                def call(*args)
-                  @recorder.call(*args)
-                  yield test: true
+                def call(*args, **opts)
+                  @recorder.call(*args, **opts.merge(@opts))
+                  yield(*args, **opts.merge(@opts))
                 end
               end
             end
 
             it 'passes args to each middleware in the stack' do
               stack << middleware.new(first_call_stub)
-              stack << middleware.new(second_call_stub)
+              stack << middleware.new(second_call_stub, test: true)
+              stack << middleware.new(third_call_stub)
 
-              stack.invoke(*arguments) { |*args| final_call_stub.call(*args) }
+              stack.invoke(message) { |msg| handler.call(msg) }
 
-              expect(first_call_stub).to have_received(:call).with(*arguments)
-              expect(second_call_stub).to have_received(:call).with(*arguments, test: true)
-              expect(final_call_stub).to have_received(:call).with(*arguments, test: true)
+              expect(first_call_stub).to have_received(:call).with(message, {})
+              expect(second_call_stub).to have_received(:call).with(message, test: true)
+              expect(third_call_stub).to have_received(:call).with(message, test: true)
+              expect(handler).to have_received(:call).with(message)
             end
 
             it 'halts the chain if a middleware does not yield' do
@@ -79,15 +83,15 @@ module Hanami
               allow(non_yielding_middleware).to receive(:call)
 
               stack << non_yielding_middleware
-              stack.invoke(*arguments) { |*args| final_call_stub.call(*args) }
+              stack.invoke(message) { |msg| handler.call(msg) }
 
-              expect(final_call_stub).not_to have_received(:call).with(*arguments)
+              expect(handler).not_to have_received(:call).with(message)
             end
 
             it 'bubbles errors' do
               stack << proc { raise 'Oh no' }
 
-              expect { stack.invoke(*arguments) }.to raise_error 'Oh no'
+              expect { stack.invoke(message) }.to raise_error 'Oh no'
             end
           end
         end

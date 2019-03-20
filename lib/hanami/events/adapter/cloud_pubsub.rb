@@ -82,7 +82,6 @@ module Hanami
           data = message.data
           payload = serializer.deserialize(data)
           event_name = message.attributes['event_name']
-          payload['id'] = message.attributes['id']
 
           @subscribers.each do |subscriber|
             subscriber.call(event_name, payload)
@@ -93,13 +92,15 @@ module Hanami
           @serializer ||= Hanami::Events::Serializer[@serializer_type].new
         end
 
+        # rubocop:disable Metrics/LineLength
         def topic_for(name)
           @topic_registry[name.to_s] ||= begin
             @pubsub.find_topic(name) ||
-              (CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
+              (Hanami::Events::CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
               raise(CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
           end
         end
+        # rubocop:enable Metrics/LineLength
 
         def namespaced(val, sep: '.')
           [Hanami::Events::CloudPubsub.namespace, val].compact.join(sep)
