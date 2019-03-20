@@ -17,6 +17,7 @@ module Hanami
                     :event_name,
                     :subscriber_opts,
                     :middleware
+        # rubocop:disable Metrics/ParameterLists
         def initialize(topic:,
                        logger:,
                        handler:,
@@ -32,6 +33,7 @@ module Hanami
           @subscriber_opts = CloudPubsub.config.subscriber.to_h.merge(subscriber_opts)
           @middleware = middleware
         end
+        # rubocop:enable Metrics/ParameterLists
 
         def register
           subscription = subscription_for(subscriber_id)

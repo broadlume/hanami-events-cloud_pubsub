@@ -92,6 +92,7 @@ module Hanami
           @serializer ||= Hanami::Events::Serializer[@serializer_type].new
         end
 
+        # rubocop:disable Metrics/LineLength
         def topic_for(name)
           @topic_registry[name.to_s] ||= begin
             @pubsub.find_topic(name) ||
@@ -99,6 +100,7 @@ module Hanami
               raise(CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
           end
         end
+        # rubocop:enable Metrics/LineLength
 
         def namespaced(val, sep: '.')
           [Hanami::Events::CloudPubsub.namespace, val].compact.join(sep)
