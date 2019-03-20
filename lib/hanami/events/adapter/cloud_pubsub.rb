@@ -82,7 +82,6 @@ module Hanami
           data = message.data
           payload = serializer.deserialize(data)
           event_name = message.attributes['event_name']
-          payload['id'] = message.attributes['id']
 
           @subscribers.each do |subscriber|
             subscriber.call(event_name, payload)
