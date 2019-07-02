@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'hanami/events/cloud_pubsub/listener'
+require 'hanami/events/cloud_pubsub/subscriber'
+require 'hanami/events/cloud_pubsub/errors'
 
 module Hanami
   module Events
@@ -49,7 +51,7 @@ module Hanami
 
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
 
-          @subscribers << Subscriber.new(event_name, block, logger)
+          @subscribers << Hanami::Events::CloudPubsub::Subscriber.new(event_name, block, logger)
           topic = topic_for event_name
 
           register_listener(event_name, topic, namespaced_id, subscriber_opts)
@@ -84,7 +86,7 @@ module Hanami
           event_name = message.attributes['event_name']
 
           @subscribers.each do |subscriber|
-            subscriber.call(event_name, payload)
+            subscriber.call(event_name, payload, message)
           end
         end
 
@@ -97,7 +99,7 @@ module Hanami
           @topic_registry[name.to_s] ||= begin
             @pubsub.find_topic(name) ||
               (Hanami::Events::CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
-              raise(CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
+              raise(::Hanami::Events::CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
           end
         end
         # rubocop:enable Metrics/LineLength
