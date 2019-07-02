@@ -83,8 +83,8 @@ module Hanami
 
         def run_handler(message)
           middleware.invoke(message) { handler.call(message) }
-        rescue StandardError => err
-          run_error_handlers(err, message)
+        rescue StandardError => e
+          run_error_handlers(e, message)
           raise
         end
 

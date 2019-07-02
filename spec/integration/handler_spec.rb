@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'hanami/events/adapter/cloud_pubsub'
 
 module Hanami
@@ -12,12 +14,12 @@ module Hanami
       before(:all) do
         spawn 'docker run --rm --name integration_spec ' \
           '-p 8086:8085 adhawk/google-pubsub-emulator',
-          out: log_file, err: log_file
+              out: log_file, err: log_file
       end
 
       after(:all) do
         system 'docker stop integration_spec',
-          out: log_file, err: log_file
+               out: log_file, err: log_file
       end
 
       subject(:adapter) do
@@ -37,7 +39,7 @@ module Hanami
 
       context 'when a handler has an arity of two' do
         it 'calls the handler with the payload and the raw pubsub message' do
-          payload = {foo: :bar}
+          payload = { foo: :bar }
           message = respond_to(:message_id, :subscription)
           handler_double = double(call: true)
 
@@ -56,7 +58,7 @@ module Hanami
 
       context 'serialization' do
         it 'serializes the payload as json, and parses with string keys' do
-          payload = {foo: :bar}
+          payload = { foo: :bar }
           handler_double = double(call: true)
 
           adapter.subscribe(topic_name, id: subscriber_id) do |p|

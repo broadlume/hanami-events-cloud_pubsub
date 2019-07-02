@@ -7,10 +7,10 @@ module Hanami
       module SafeErrorHandler
         def self.call(handler, err, message)
           handler.call(err, message)
-        rescue StandardError => ex
+        rescue StandardError => e
           CloudPubsub.logger.error '!!! ERROR HANDLER THREW AN ERROR !!!'
-          CloudPubsub.logger.error ex
-          CloudPubsub.logger.error ex.backtrace.join("\n") unless ex.backtrace.nil?
+          CloudPubsub.logger.error e
+          CloudPubsub.logger.error e.backtrace.join("\n") unless e.backtrace.nil?
         end
       end
     end

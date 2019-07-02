@@ -51,7 +51,8 @@ module Hanami
 
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
 
-          @subscribers << Hanami::Events::CloudPubsub::Subscriber.new(event_name, block, logger)
+          sub = Hanami::Events::CloudPubsub::Subscriber.new(event_name, block, logger)
+          @subscribers << sub
           topic = topic_for event_name
 
           register_listener(event_name, topic, namespaced_id, subscriber_opts)
