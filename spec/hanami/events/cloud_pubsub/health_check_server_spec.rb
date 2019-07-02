@@ -50,6 +50,7 @@ module Hanami
             sleep 0.2
             break if port_open?
             raise 'server did not start' if tries > 10
+
             tries += 1
           end
         end

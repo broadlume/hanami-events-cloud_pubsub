@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module Hanami
   module Events
-    # Subscriber class for calling subscriber blocks, with extra support for
-    # passing the raw message.
-    #
-    # @since 0.1.0
-    #
-    # @api private
     module CloudPubsub
+      # Subscriber class for calling subscriber blocks, with extra support for
+      # passing the raw message.
+      #
+      # @since 0.1.0
+      #
+      # @api private
       class Subscriber < ::Hanami::Events::Subscriber
         def initialize(event_name, handler, logger = nil, data_struct_class = nil)
           super

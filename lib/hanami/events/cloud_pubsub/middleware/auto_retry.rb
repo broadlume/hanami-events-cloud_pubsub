@@ -19,9 +19,9 @@ module Hanami
             failed = false
             yield(args)
             succeeded = true
-          rescue StandardError => err
+          rescue StandardError => e
             failed = true
-            raise err
+            raise e
           ensure
             ack_or_reject(message, succeeded, failed, args)
           end

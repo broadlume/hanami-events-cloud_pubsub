@@ -7,9 +7,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 # Specify your gem's dependencies in hanami-events-cloud_pubsub.gemspec
 gemspec
 
-group :test do
-  gem 'hanami-events', github: 'hanami/events'
-  gem 'pry'
-  gem 'rubocop', '~> 0.54.0'
-  gem 'simplecov', require: false
-end
+gem 'hanami-events', github: 'hanami/events'
+gem 'pry'
+gem 'rubocop'
+gem 'simplecov', require: false
