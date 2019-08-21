@@ -8,9 +8,9 @@ GIT
 PATH
   remote: .
   specs:
-    hanami-events-cloud_pubsub (2.2.0)
+    hanami-events-cloud_pubsub (2.2.1)
       dry-configurable (~> 0.8.0)
-      google-cloud-pubsub (>= 0.34, < 0.39)
+      google-cloud-pubsub (>= 0.38.1, < 0.39)
       hanami-cli (~> 0.2)
       hanami-events (~> 0.2.0)
 
