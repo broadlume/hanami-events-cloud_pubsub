@@ -8,6 +8,8 @@ module Hanami
         class Error < StandardError; end
         class TopicNotFoundError < Error; end
         class SubscriptionNotFoundError < Error; end
+        class SubscriptionTopicNameMismatch < Error; end
+        class NoSubscriberError < Error; end
       end
     end
   end

@@ -7,7 +7,11 @@ module Hanami
   module Events
     RSpec.describe Adapter::CloudPubsub do
       let(:pubsub) { double }
-      let(:sub) { instance_double(Google::Cloud::Pubsub::Subscription, listen: true) }
+      let(:sub) do
+        instance_double(Google::Cloud::Pubsub::Subscription,
+                        listen: true,
+                        topic: double(name: 'projects/test/topics/some_namespace.test_event'))
+      end
       let(:topic) do
         instance_double(Google::Cloud::Pubsub::Topic,
                         publish_async: true,
@@ -71,7 +75,7 @@ module Hanami
       describe '#subscribe' do
         it 'passes the subscriber_opts to listen' do
           expect(sub).to receive(:listen).with(a_hash_including(deadline: 24))
-          adapter.subscribe('test_event', id: 'test', deadline: 24)
+          adapter.subscribe('some_namespace.test_event', id: 'test', deadline: 24)
         end
 
         it 'registers a listener for the correct namespace' do

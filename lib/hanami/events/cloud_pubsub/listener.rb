@@ -7,8 +7,6 @@ module Hanami
     module CloudPubsub
       # @api private
       class Listener
-        class NoSubscriberError < StandardError; end
-
         attr_reader :topic,
                     :subscriber,
                     :subscriber_id,
@@ -89,19 +87,36 @@ module Hanami
         end
 
         def subscription_for(name)
-          topic.find_subscription(name) ||
-            (CloudPubsub.auto_create_subscriptions && topic.create_subscription(name)) ||
-            raise(Errors::SubscriptionNotFoundError, "no subscription named: #{name}")
+          found_subscription = topic.find_subscription(name)
+
+          if found_subscription
+            ensure_topic_names_match!(name, found_subscription)
+            found_subscription
+          elsif CloudPubsub.auto_create_subscriptions
+            topic.create_subscription(name)
+          else
+            raise Errors::SubscriptionNotFoundError, "no subscription named: #{name}"
+          end
         end
 
         def ensure_subscriber!
-          raise NoSubscriberError, 'No subsriber has been registered' unless @subscriber
+          raise Errors::NoSubscriberError, 'No subsriber has been registered' unless @subscriber
         end
 
         def run_error_handlers(err, message)
           CloudPubsub.error_handlers.each do |handler|
             SafeErrorHandler.call(handler, err, message)
           end
+        end
+
+        def ensure_topic_names_match!(sub_name, found_subscription)
+          parsed_name = found_subscription.topic.name.split('/').last
+
+          return true if parsed_name == @event_name
+
+          raise Errors::SubscriptionTopicNameMismatch,
+                "a subscription already exists for #{sub_name} " \
+                "but its name #{found_subscription.topic.name} does not match #{@event_name}"
         end
       end
     end
