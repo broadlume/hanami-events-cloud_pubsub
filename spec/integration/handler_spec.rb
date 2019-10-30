@@ -74,6 +74,22 @@ module Hanami
         end
       end
 
+      context 'when the subscription name does not match requested subscription name' do
+        it 'calls the handler with the payload and the raw pubsub message' do
+          handler_double = double(call: true)
+          updated_topic_name = "#{topic_name}.updated"
+          pubsub.create_topic(updated_topic_name)
+
+          adapter.subscribe(topic_name, id: subscriber_id) do |p, m|
+            handler_double.call(p, m)
+          end
+
+          expect do
+            adapter.subscribe(updated_topic_name, id: subscriber_id) {}
+          end.to raise_error CloudPubsub::Errors::SubscriptionTopicNameMismatch
+        end
+      end
+
       def start_listeners
         adapter.listeners.each(&:start)
         yield
