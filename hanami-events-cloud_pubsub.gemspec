@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'dry-configurable', '~> 0.8.0'
+  spec.add_dependency 'dry-configurable', '>= 0.8', '< 0.10'
   spec.add_dependency 'google-cloud-pubsub', '>= 0.38.1', '< 1.2'
   spec.add_dependency 'hanami-cli', '~> 0.2'
   spec.add_dependency 'hanami-events', '~> 0.2.0'
