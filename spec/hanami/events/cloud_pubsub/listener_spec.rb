@@ -57,6 +57,27 @@ module Hanami
 
               listener.shutdown
             end
+
+            it 'allows for configurable concurrency' do
+              listener = described_class.new(
+                topic: topic,
+                logger: logger,
+                handler: proc { sleep 0.1 },
+                event_name: topic_name,
+                subscriber_id: subscriber_id,
+                subscriber_opts: { threads: { callback: 1, push: 1 }, streams: 1 }
+              )
+
+              20.times { topic.publish 'hello' }
+
+              expect do
+                listener.register
+                listener.start
+                sleep 2
+              end.to change { Thread.list.count }.by(6)
+
+              listener.shutdown
+            end
           end
 
           context 'failure' do

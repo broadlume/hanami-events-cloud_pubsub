@@ -40,6 +40,8 @@ module Hanami
             handle_message(message)
           end
 
+          logger.debug("Registered listener for #{subscriber_id} with opts #{subscriber_opts}")
+
           @subscriber = listener
 
           self
