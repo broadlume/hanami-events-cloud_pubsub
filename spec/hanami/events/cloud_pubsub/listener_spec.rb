@@ -74,7 +74,7 @@ module Hanami
                 listener.register
                 listener.start
                 sleep 2
-              end.to change { Thread.list.count }.by(6)
+              end.to change { Thread.list.count }.by(0..6)
 
               listener.shutdown
             end
