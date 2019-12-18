@@ -6,7 +6,7 @@ module Hanami
   module Events
     module CloudPubsub
       RSpec.describe HealthCheckServer do
-        let(:runner) { double(healthy?: true) }
+        let(:runner) { double(healthy?: true, debug_info: 'healthy') }
         subject(:server) { described_class.new(runner, test_logger) }
 
         describe '#run_in_background' do

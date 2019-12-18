@@ -50,7 +50,7 @@ module Hanami
         def health_endpoint(_req, res)
           res['Content-Type'] = 'text/plain'
           res.status = runner.healthy? ? 200 : 503
-          res.body = res.status.to_s
+          res.body = runner.debug_info
         end
       end
     end

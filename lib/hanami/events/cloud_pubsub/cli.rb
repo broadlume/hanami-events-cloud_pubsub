@@ -95,7 +95,7 @@ module Hanami
             end
 
             def setup_signal_handlers
-              Signal.trap('TTIN') { @event_queue << runner.method(:print_debug_info) }
+              Signal.trap('TTIN') { @event_queue << method(:print_debug_info) }
               Signal.trap('INT')  { @event_queue << method(:shutdown) }
               Signal.trap('TERM') { @event_queue << method(:shutdown) }
               Signal.trap('TSTP') { @event_queue << runner.method(:shutdown) }
@@ -103,6 +103,7 @@ module Hanami
 
             def shutdown
               STDOUT.flush
+              STDERR.flush
               runner.gracefully_shutdown
             ensure
               @finished_shutting_down = true
@@ -110,6 +111,10 @@ module Hanami
 
             def finished_shutting_down?
               @finished_shutting_down == true
+            end
+
+            def print_debug_info
+              warn(runner.debug_info)
             end
           end
 

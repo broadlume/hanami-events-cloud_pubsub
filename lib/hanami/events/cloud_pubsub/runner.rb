@@ -84,8 +84,8 @@ module Hanami
         #
         # See: https://github.com/mperham/sidekiq/blob/e447dae961ebc894f12848d9f33446a07ffc67dc/bin/sidekiqload#L74
         # rubocop:disable Metrics/AbcSize
-        def print_debug_info(stream = STDOUT)
-          stream.puts <<~MSG
+        def debug_info
+          <<~MSG
             ╔══════ BACKTRACES
             #{Thread.list.flat_map { |thr| ThreadInspector.new(thr).to_s }.join("\n")}
             ╠══════ LISTENERS
