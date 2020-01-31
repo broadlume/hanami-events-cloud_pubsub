@@ -32,6 +32,7 @@ Hanami.configure do
       config.namespace = :staging # optional
       config.auto_create_topics = false # optional
       config.auto_create_subscriptions = false # optional
+      config.on_shutdown = ->(adapter) { Analytics.flush } # optional
       config.error_handlers << ->(err, message) { MyErrorReporter.report(err) }
       # ...
     end

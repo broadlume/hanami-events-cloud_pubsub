@@ -42,6 +42,15 @@ module Hanami
             expect(logger).to receive(:info).with(/Gracefully shutting down/)
             runner.gracefully_shutdown
           end
+
+          it 'calls the shutdown handlers' do
+            shutdown_handler = double(call: true)
+
+            allow(CloudPubsub).to receive(:on_shutdown_handlers).and_return([shutdown_handler])
+            expect(shutdown_handler).to receive(:call)
+
+            runner.gracefully_shutdown
+          end
         end
 
         describe '#stop' do

@@ -42,6 +42,8 @@ module Hanami
           sleep_for_a_bit
           adapter.flush_messages
           adapter.listeners.each(&:wait)
+          handle_on_shutdown
+
           self
         end
 
@@ -103,6 +105,20 @@ module Hanami
 
         def sleep_for_a_bit
           sleep @sleep_time
+        end
+
+        def handle_on_shutdown
+          return if CloudPubsub.on_shutdown_handlers.empty?
+
+          logger.info('Calling custom on_shutdown handler')
+
+          CloudPubsub.on_shutdown_handlers.each do |handler|
+            begin
+              handler.call(adapter)
+            rescue StandardError => e
+              logger.warn("Shutdown handler failed (#{e.message})")
+            end
+          end
         end
       end
     end
