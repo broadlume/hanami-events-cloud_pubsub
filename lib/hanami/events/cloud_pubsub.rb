@@ -63,6 +63,8 @@ module Hanami
         Middleware::Logging.new,
         Middleware::AutoRetry.new
       )
+
+      setting :on_shutdown_handlers, [], reader: true
     end
   end
 end
