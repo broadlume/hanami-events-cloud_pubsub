@@ -27,9 +27,7 @@ module Hanami
         end
       end
 
-      setting :pubsub do |conf_hash|
-        conf_hash.each { |key, val| Google::Cloud::Pubsub.configure[key] = val }
-      end
+      setting :pubsub, {}, reader: true
 
       setting :project_id, reader: true
       setting :auto_create_subscriptions, false, reader: true
@@ -65,6 +63,11 @@ module Hanami
       )
 
       setting :on_shutdown_handlers, [], reader: true
+
+      def self.finalize_settings!
+        conf_hash = config.pubsub
+        conf_hash.each { |key, val| Google::Cloud::Pubsub.configure[key] = val }
+      end
     end
   end
 end

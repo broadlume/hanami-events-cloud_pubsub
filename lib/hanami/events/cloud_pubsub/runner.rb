@@ -17,6 +17,7 @@ module Hanami
 
         # Called to start the runner (subscribes to topics/etc)
         def start(_options = {})
+          CloudPubsub.finalize_settings!
           logger.info 'Starting CloudPubsub listeners'
           adapter.listeners.map(&:start)
           self
