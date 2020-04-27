@@ -106,6 +106,13 @@ Then, run the worker process:
 bundle exec cloudpubsub run
 ```
 
+# Prometheus Integration
+
+If you have the `prometheus-client` gem installed, a `/metrics` endpoint will
+be available on the health check server which can be scraped.
+
+All you need to do to activate this is to make sure to `require 'prometheus/client'`.
+
 # Testing
 
 If you would like to use an emulator process for testing:
