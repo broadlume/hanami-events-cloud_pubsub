@@ -6,6 +6,7 @@ require 'hanami/events/cloud_pubsub/version'
 require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
 require 'hanami/events/cloud_pubsub/middleware/auto_retry'
+require 'hanami/events/cloud_pubsub/middleware/prometheus'
 require 'hanami/events/cloud_pubsub/runner'
 require 'hanami/events/cloud_pubsub/errors'
 require 'google/cloud/pubsub'
@@ -57,10 +58,14 @@ module Hanami
         end
       ], reader: true
 
-      setting :middleware, Middleware::Stack.new(
+      middleware_stack = Middleware::Stack.new(
         Middleware::Logging.new,
         Middleware::AutoRetry.new
       )
+
+      middleware_stack.prepend(Middleware::Prometheus) if defined?(::Prometheus::Client)
+
+      setting :middleware, middleware_stack
 
       setting :on_shutdown_handlers, [], reader: true
 

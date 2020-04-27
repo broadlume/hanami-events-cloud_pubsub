@@ -34,6 +34,18 @@ module Hanami
 
             expect(on_shutdown).to have_received(:call)
           end
+
+          it 'exposes a /metrics endpoint' do
+            require 'prometheus/client'
+            prometheus = ::Prometheus::Client.registry
+            prometheus.counter(:test_events, docstring: 'Testing')
+
+            with_server do
+              res = Net::HTTP.get_response(URI.parse('http://localhost:8081/metrics'))
+              expect(res.code).to eql('200')
+              expect(res.body).to include('# TYPE test_events counter')
+            end
+          end
         end
 
         def with_server
