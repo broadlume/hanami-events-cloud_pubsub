@@ -12,7 +12,7 @@ module Hanami
             require 'prometheus/client'
             prometheus = ::Prometheus::Client.registry
             @events_counter = prometheus.counter(
-              :pubsub_events,
+              :received_pubsub_events,
               docstring: 'A counter of received pubsub events',
               labels: %i[event_name subscription]
             )
