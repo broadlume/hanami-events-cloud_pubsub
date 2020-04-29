@@ -14,16 +14,26 @@ module Hanami
             @events_counter = prometheus.counter(
               :received_pubsub_events,
               docstring: 'A counter of received pubsub events',
-              labels: %i[event_name subscription]
+              labels: %i[event_name subscription status]
             )
           end
 
           def call(msg, opts = {})
-            yield(opts)
+            status = :running
+
+            begin
+              ret = yield(opts)
+              status = :succeeded
+              ret
+            rescue StandardError
+              status = :failed
+              raise
+            end
           ensure
             sub = msg.subscription.subscriber.subscription_name
             event_name = msg.attributes['event_name']
-            events_counter.increment(labels: { event_name: event_name, subscription: sub })
+            labels = { event_name: event_name, subscription: sub, status: status }
+            events_counter.increment(labels: labels)
           end
         end
       end
