@@ -9,8 +9,9 @@ env:
     - CC_TEST_REPORTER_ID=7ab310950456b913cd7e947f6671e3e9c16822f33bd8c572dadcc14593fe4fb5
     - COVERAGE=true
 rvm:
-  - 2.4
+  - 2.5
   - 2.6
+  - 2.7
 before_install:
   - gem install bundler -v 1.16.1
 before_script:
