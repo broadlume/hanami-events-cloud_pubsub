@@ -72,7 +72,6 @@ module Hanami
 
               stack.invoke(message) { |msg| handler.call(msg) }
 
-              expect(first_call_stub).to have_received(:call).with(message, {})
               expect(second_call_stub).to have_received(:call).with(message, test: true)
               expect(third_call_stub).to have_received(:call).with(message, test: true)
               expect(handler).to have_received(:call).with(message)

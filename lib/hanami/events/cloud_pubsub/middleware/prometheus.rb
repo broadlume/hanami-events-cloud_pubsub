@@ -18,11 +18,11 @@ module Hanami
             )
           end
 
-          def call(msg, opts = {})
+          def call(msg, **opts)
             status = :running
 
             begin
-              ret = yield(opts)
+              ret = yield(**opts)
               status = :succeeded
               ret
             rescue StandardError

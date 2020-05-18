@@ -34,7 +34,7 @@ module Hanami
           payload = serializer.serialize(payload)
           attributes = { id: SecureRandom.uuid, event_name: event_name }
 
-          topic.publish_async(payload, attributes) do |result|
+          topic.publish_async(payload, **attributes) do |result|
             logger.info "Published event #{result.inspect}"
           end
         end

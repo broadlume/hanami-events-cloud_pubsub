@@ -14,10 +14,10 @@ module Hanami
             @max_attempts = max_attempts
           end
 
-          def call(message, args = {})
+          def call(message, **args)
             succeeded = false
             failed = false
-            yield(args)
+            yield(**args)
             succeeded = true
           rescue StandardError => e
             failed = true
