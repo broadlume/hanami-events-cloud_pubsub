@@ -97,11 +97,15 @@ module Hanami
 
         # rubocop:disable Metrics/LineLength
         def topic_for(name)
-          @topic_registry[name.to_s] ||= begin
-            @pubsub.find_topic(name) ||
-              (Hanami::Events::CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
-              raise(::Hanami::Events::CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
-          end
+          return @topic_registry[name.to_s] if @topic_registry[name.to_s]
+
+          topic = @pubsub.find_topic(name) ||
+                  (Hanami::Events::CloudPubsub.auto_create_topics && @pubsub.create_topic(name)) ||
+                  raise(::Hanami::Events::CloudPubsub::Errors::TopicNotFoundError, "no topic named: #{name}")
+
+          topic.enable_message_ordering!
+
+          @topic_registry[name.to_s] = topic
         end
         # rubocop:enable Metrics/LineLength
 
