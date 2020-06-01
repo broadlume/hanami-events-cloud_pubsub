@@ -28,13 +28,13 @@ module Hanami
         #
         # @param event [Symbol, String] the event name
         # @param payload [Hash] the event data
-        def broadcast(name, payload)
+        def broadcast(name, payload, **message_opts)
           event_name = namespaced(name)
           topic = topic_for event_name
           payload = serializer.serialize(payload)
           attributes = { id: SecureRandom.uuid, event_name: event_name }
 
-          topic.publish_async(payload, **attributes) do |result|
+          topic.publish_async(payload, **attributes, **message_opts) do |result|
             logger.info "Published event #{result.inspect}"
           end
         end

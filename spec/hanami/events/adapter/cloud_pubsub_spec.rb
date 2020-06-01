@@ -70,6 +70,14 @@ module Hanami
 
           adapter.broadcast('test', payload)
         end
+
+        it 'publishes the event with message opts' do
+          expect(topic)
+            .to receive(:publish_async)
+            .with(anything, include(ordering_key: 'foo'))
+
+          adapter.broadcast('test', payload, ordering_key: 'foo')
+        end
       end
 
       describe '#subscribe' do
