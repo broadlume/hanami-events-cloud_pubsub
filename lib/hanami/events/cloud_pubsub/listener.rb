@@ -36,7 +36,7 @@ module Hanami
         def register
           subscription = subscription_for(subscriber_id)
 
-          listener = subscription.listen(subscriber_opts) do |message|
+          listener = subscription.listen(**subscriber_opts) do |message|
             handle_message(message)
           end
 

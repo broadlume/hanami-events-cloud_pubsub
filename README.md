@@ -106,6 +106,19 @@ Then, run the worker process:
 bundle exec cloudpubsub run
 ```
 
+# `RequestId` Integration
+
+To gem has an integration with [request_id](https://github.com/remind101/request_id), so you can trace interactions between various components in your app. To make it work properly, make sure the `request_id` is added to your Gemfile, then require the middleware:
+
+```ruby
+require 'hanami/events/cloud_pubsub/middleware/request_id'
+
+Hanami::Events::CloudPubsub.configure do |config|
+  # ...
+end
+```
+
+
 # Prometheus Integration
 
 If you have the `prometheus-client` gem installed, a `/metrics` endpoint will

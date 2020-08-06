@@ -11,3 +11,5 @@ gem 'hanami-events', github: 'hanami/events'
 gem 'pry'
 gem 'rubocop'
 gem 'simplecov', require: false
+
+gem 'request_id', '~> 0.4.3'

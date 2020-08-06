@@ -11,7 +11,7 @@ module Hanami
       #
       # @api private
       class CloudPubsub
-        attr_reader :subscribers, :listeners, :topic_registry
+        attr_reader :subscribers, :listeners, :topic_registry, :middleware
 
         def initialize(params)
           @pubsub = params[:pubsub]
@@ -22,6 +22,7 @@ module Hanami
           @serializer_type = params.fetch(:serializer, :json).to_sym
           @topic_registry = {}
           @mutex = Mutex.new
+          @middleware = ::Hanami::Events::CloudPubsub.config.client_middleware
         end
 
         # Brodcasts event to all subscribes
@@ -34,8 +35,10 @@ module Hanami
           payload = serializer.serialize(payload)
           attributes = { id: SecureRandom.uuid, event_name: event_name }
 
-          topic.publish_async(payload, **attributes, **message_opts) do |result|
-            logger.info "Published event #{result.inspect}"
+          middleware.invoke(payload, **attributes, **message_opts) do |*args|
+            topic.publish_async(*args) do |result|
+              logger.info "Published event #{result.inspect}"
+            end
           end
         end
 

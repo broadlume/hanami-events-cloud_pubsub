@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'request_id'
 require 'hanami/events/adapter/cloud_pubsub'
 
 module Hanami
@@ -71,6 +72,26 @@ module Hanami
           end
 
           expect(handler_double).to have_received(:call).with('foo' => 'bar')
+        end
+      end
+
+      context 'request id' do
+        it 'broadcasts with the request id' do
+          payload = { foo: :bar }
+          handler_double = double(call: true)
+
+          adapter.subscribe(topic_name, id: subscriber_id) do |p, m|
+            handler_double.call(p, m.message.attributes)
+          end
+
+          start_listeners do
+            adapter.broadcast topic_name, payload
+            sleep 1
+          end
+
+          expect(handler_double)
+            .to have_received(:call)
+            .with(anything, include({ 'request_id' => match(/^\h{8}/) }))
         end
       end
 

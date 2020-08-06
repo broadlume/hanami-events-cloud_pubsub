@@ -72,6 +72,21 @@ module Hanami
 
       setting :middleware, middleware_stack
 
+      client_middleware_stack = Middleware::Stack.new
+
+      begin
+        require 'request_id'
+        require 'hanami/events/cloud_pubsub/middleware/client/request_id'
+        require 'hanami/events/cloud_pubsub/middleware/request_id'
+
+        client_middleware_stack.prepend(Middleware::Client::RequestId.new)
+        middleware_stack.prepend(Middleware::RequestId.new)
+      rescue LoadError
+        # ok
+      end
+
+      setting :client_middleware, client_middleware_stack
+
       setting :on_shutdown_handlers, [], reader: true
 
       def self.finalize_settings!
