@@ -40,14 +40,14 @@ module Hanami
             @entries.shift
           end
 
-          def invoke(*args)
+          def invoke(*args, **kwargs)
             stack = entries.dup
 
             traverse_stack = proc do |**opts|
               if stack.empty?
-                yield(*args)
+                yield(*args, **kwargs, **opts)
               else
-                stack.shift.call(*args, **opts, &traverse_stack)
+                stack.shift.call(*args, **kwargs, **opts, &traverse_stack)
               end
             end
 

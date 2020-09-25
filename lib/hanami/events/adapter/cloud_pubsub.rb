@@ -35,9 +35,15 @@ module Hanami
           payload = serializer.serialize(payload)
           attributes = { id: SecureRandom.uuid, event_name: event_name }
 
-          middleware.invoke(payload, **attributes, **message_opts) do |*args|
-            topic.publish_async(*args) do |result|
-              logger.info "Published event #{result.inspect}"
+          middleware.invoke(payload, **attributes, **message_opts) do |payload, **opts|
+            topic.publish_async(payload, **opts) do |result|
+              msg = result.message.grpc.to_h
+
+              if result.succeeded?
+                logger.info "Published #{name.inspect} published", **msg
+              else
+                logger.warn "Failed to broadcast #{name.inspect} event", error: result.error, **msg
+              end
             end
           end
         end
