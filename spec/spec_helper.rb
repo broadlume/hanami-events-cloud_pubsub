@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8086'
+ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8086' unless ENV['REAL_PUBSUB']
 
 if ENV['COVERAGE'] == 'true'
   require 'simplecov'
@@ -11,7 +11,7 @@ require 'bundler/setup'
 require 'hanami/events/cloud_pubsub'
 
 Google::Cloud::Pubsub.configure do |config|
-  config.project_id = 'communique-spec'
+  config.project_id = ENV['GOOGLE_CLOUD_PROJECT'] || 'adhawk-franchises-development'
 end
 
 module SpecLogging

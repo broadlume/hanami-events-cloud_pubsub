@@ -11,11 +11,9 @@ module Hanami
           let(:middleware) { described_class.new }
 
           it 'clears when the middleware fails' do
-            begin
-              middleware.call(msg) { raise }
-            rescue StandardError
-              nil
-            end
+            middleware.call(msg) { raise }
+          rescue StandardError
+            nil
           end
 
           it 'sets the request id for the job' do

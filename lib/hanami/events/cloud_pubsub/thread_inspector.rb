@@ -48,7 +48,7 @@ module Hanami
         end
 
         def join_backtrace(pretty_backtrace)
-          pretty_backtrace.map! { |line| "║\t" + line }
+          pretty_backtrace.map! { |line| "║\t#{line}" }
           pretty_backtrace << '║'
           pretty_backtrace.join("\n")
         end

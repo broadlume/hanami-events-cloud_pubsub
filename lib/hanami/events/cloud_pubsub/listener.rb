@@ -5,6 +5,7 @@ require 'hanami/events/cloud_pubsub/safe_error_handler'
 module Hanami
   module Events
     module CloudPubsub
+      # rubocop:disable Metrics/ClassLength:
       # @api private
       class Listener
         attr_reader :topic,
@@ -13,8 +14,10 @@ module Hanami
                     :logger,
                     :handler,
                     :event_name,
-                    :subscriber_opts,
-                    :middleware
+                    :input_subscriber_opts,
+                    :middleware,
+                    :dead_letter_topic
+
         # rubocop:disable Metrics/ParameterLists
         def initialize(topic:,
                        logger:,
@@ -22,25 +25,24 @@ module Hanami
                        event_name:,
                        subscriber_id:,
                        subscriber_opts: {},
-                       middleware: CloudPubsub.config.middleware)
+                       middleware: CloudPubsub.config.middleware,
+                       dead_letter_topic: nil)
           @topic = topic
           @logger = logger
           @handler = handler
           @event_name = event_name
           @subscriber_id = subscriber_id
-          @subscriber_opts = CloudPubsub.config.subscriber.to_h.merge(subscriber_opts)
+          @input_subscriber_opts = subscriber_opts
           @middleware = middleware
+          @dead_letter_topic = dead_letter_topic
         end
         # rubocop:enable Metrics/ParameterLists
 
         def register
           subscription = subscription_for(subscriber_id)
-
-          listener = subscription.listen(**subscriber_opts) do |message|
-            handle_message(message)
-          end
-
-          logger.debug("Registered listener for #{subscriber_id} with opts #{subscriber_opts}")
+          apply_retry_options(subscription)
+          listener = subscription.listen(**subscriber_options) { |m| handle_message(m) }
+          logger.debug("Registered listener for #{subscriber_id} with: #{subscriber_options}")
 
           @subscriber = listener
 
@@ -86,6 +88,8 @@ module Hanami
         rescue StandardError => e
           run_error_handlers(e, message)
           raise
+        ensure
+          message.nack! if CloudPubsub.config.auto_retry.enabled
         end
 
         def subscription_for(name)
@@ -120,7 +124,28 @@ module Hanami
                 "a subscription already exists for #{sub_name} " \
                 "but its name #{found_subscription.topic.name} does not match #{@event_name}"
         end
+
+        def subscriber_options
+          @subscriber_options ||= {
+            **CloudPubsub.config.subscriber.to_h,
+            **input_subscriber_opts
+          }
+        end
+
+        def apply_retry_options(sub)
+          return {} unless CloudPubsub.config.auto_retry.enabled
+
+          sub.retry_policy = Google::Cloud::PubSub::RetryPolicy.new(
+            minimum_backoff: CloudPubsub.config.auto_retry.minimum_backoff,
+            maximum_backoff: CloudPubsub.config.auto_retry.maximum_backoff
+          )
+          sub.dead_letter_topic = dead_letter_topic
+          sub.dead_letter_max_delivery_attempts = CloudPubsub.config.auto_retry.max_attempts
+
+          sub
+        end
       end
+      # rubocop:enable Metrics/ClassLength:
     end
   end
 end

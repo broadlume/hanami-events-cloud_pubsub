@@ -15,7 +15,7 @@ module Hanami
 
         def initialize(params)
           @pubsub = params[:pubsub]
-          @logger = params[:logger] || Logger.new(STDOUT)
+          @logger = params[:logger] || Logger.new($stdout)
           @listen = params[:listen] || false
           @subscribers = Concurrent::Array.new
           @listeners = Concurrent::Array.new
@@ -29,20 +29,20 @@ module Hanami
         #
         # @param event [Symbol, String] the event name
         # @param payload [Hash] the event data
-        def broadcast(name, payload, **message_opts)
+        def broadcast(name, input_payload, **message_opts)
           event_name = namespaced(name)
           topic = topic_for event_name
-          payload = serializer.serialize(payload)
-          attributes = { id: SecureRandom.uuid, event_name: event_name }
+          serialized_payload = serializer.serialize(input_payload)
+          attrs = { id: SecureRandom.uuid, event_name: event_name }
 
-          middleware.invoke(payload, **attributes, **message_opts) do |payload, **opts|
+          middleware.invoke(serialized_payload, **attrs, **message_opts) do |payload, **opts|
             topic.publish_async(payload, **opts) do |result|
               msg = result.message.grpc.to_h
 
               if result.succeeded?
                 logger.info "Published #{name.inspect} published", **msg
               else
-                logger.warn "Failed to broadcast #{name.inspect} event", error: result.error, **msg
+                logger.warn "Failed to broadcast #{name.inspect} event", error: result.error, **msg # rubocop:disable Layout/LineLength
               end
             end
           end
@@ -83,7 +83,8 @@ module Hanami
             handler: method(:call_subscribers),
             logger: logger,
             topic: topic,
-            subscriber_opts: subscriber_opts
+            subscriber_opts: subscriber_opts,
+            dead_letter_topic: dead_letter_topic
           )
 
           @listeners << listener
@@ -104,7 +105,7 @@ module Hanami
           @serializer ||= Hanami::Events::Serializer[@serializer_type].new
         end
 
-        # rubocop:disable Metrics/LineLength
+        # rubocop:disable Layout/LineLength
         def topic_for(name)
           return @topic_registry[name.to_s] if @topic_registry[name.to_s]
 
@@ -116,7 +117,15 @@ module Hanami
 
           @topic_registry[name.to_s] = topic
         end
-        # rubocop:enable Metrics/LineLength
+        # rubocop:enable Layout/LineLength
+
+        def dead_letter_topic
+          conf = Hanami::Events::CloudPubsub.config.auto_retry
+
+          return unless conf.enabled
+
+          topic_for namespaced(conf.dead_letter_topic_name)
+        end
 
         def namespaced(val, sep: '.')
           [Hanami::Events::CloudPubsub.namespace, val].compact.join(sep)

@@ -86,13 +86,12 @@ module Hanami
         # some reason.
         #
         # See: https://github.com/mperham/sidekiq/blob/e447dae961ebc894f12848d9f33446a07ffc67dc/bin/sidekiqload#L74
-        # rubocop:disable Metrics/AbcSize
         def debug_info
           <<~MSG
             ╔══════ BACKTRACES
             #{Thread.list.flat_map { |thr| ThreadInspector.new(thr).to_s }.join("\n")}
             ╠══════ LISTENERS
-            #{adapter.listeners.map { |lis| '║ ' + lis.format }.join("\n")}
+            #{adapter.listeners.map { |lis| "║ #{lis.format}" }.join("\n")}
             ║
             ╠══════ GENERAL
             ║ ready?: #{ready?}
@@ -102,7 +101,6 @@ module Hanami
             ╚══════
           MSG
         end
-        # rubocop:enable Metrics/AbcSize
 
         def sleep_for_a_bit
           sleep @sleep_time
@@ -114,11 +112,9 @@ module Hanami
           logger.info('Calling custom on_shutdown handler')
 
           CloudPubsub.on_shutdown_handlers.each do |handler|
-            begin
-              handler.call(adapter)
-            rescue StandardError => e
-              logger.warn("Shutdown handler failed (#{e.message})")
-            end
+            handler.call(adapter)
+          rescue StandardError => e
+            logger.warn("Shutdown handler failed (#{e.message})")
           end
         end
       end

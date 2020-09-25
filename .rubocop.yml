@@ -2,9 +2,10 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
+  NewCops: enable
   Exclude:
     - bin/*
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
 
 Metrics/BlockLength:
   Exclude:

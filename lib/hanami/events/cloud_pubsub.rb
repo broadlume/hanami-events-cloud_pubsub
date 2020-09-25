@@ -5,7 +5,6 @@ require 'hanami/events'
 require 'hanami/events/cloud_pubsub/version'
 require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
-require 'hanami/events/cloud_pubsub/middleware/auto_retry'
 require 'hanami/events/cloud_pubsub/runner'
 require 'hanami/events/cloud_pubsub/errors'
 require 'google/cloud/pubsub'
@@ -32,7 +31,7 @@ module Hanami
       setting :project_id, reader: true
       setting :auto_create_subscriptions, false, reader: true
       setting :auto_create_topics, false, reader: true
-      setting :logger, Logger.new(STDOUT), reader: true
+      setting :logger, Logger.new($stdout), reader: true
       setting :subscriptions_loader, proc {
         abort <<~MSG
           ┌────────────────────────────────────────────────────────────────────────────────┐
@@ -58,8 +57,7 @@ module Hanami
       ], reader: true
 
       middleware_stack = Middleware::Stack.new(
-        Middleware::Logging.new,
-        Middleware::AutoRetry.new
+        Middleware::Logging.new
       )
 
       begin
@@ -88,6 +86,14 @@ module Hanami
       setting :client_middleware, client_middleware_stack
 
       setting :on_shutdown_handlers, [], reader: true
+
+      setting :auto_retry do
+        setting :enabled, false
+        setting :max_attempts, 1200
+        setting :dead_letter_topic_name
+        setting :minimum_backoff, 30
+        setting :maximum_backoff, 600
+      end
 
       def self.finalize_settings!
         conf_hash = config.pubsub
