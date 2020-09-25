@@ -102,8 +102,8 @@ module Hanami
             end
 
             def shutdown
-              STDOUT.flush
-              STDERR.flush
+              $stdout.flush
+              $stderr.flush
               runner.gracefully_shutdown
             ensure
               @finished_shutting_down = true
