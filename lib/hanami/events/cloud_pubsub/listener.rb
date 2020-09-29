@@ -87,9 +87,8 @@ module Hanami
           middleware.invoke(message) { handler.call(message) }
         rescue StandardError => e
           run_error_handlers(e, message)
-          raise
-        ensure
           message.nack! if CloudPubsub.config.auto_retry.enabled
+          raise
         end
 
         def subscription_for(name)

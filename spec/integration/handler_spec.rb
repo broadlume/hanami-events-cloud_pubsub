@@ -156,6 +156,49 @@ module Hanami
         end
       end
 
+      context 'when not using auto_retry' do
+        let(:dead_letter_topic_name) { "test-dead-letter-#{SecureRandom.hex(5)}" }
+
+        before do
+          config = double(
+            enabled: false,
+            max_attempts: 5,
+            dead_letter_topic_name: dead_letter_topic_name,
+            minimum_backoff: 1,
+            maximum_backoff: 2
+          )
+
+          allow(CloudPubsub.config).to receive(:auto_retry).and_return(config)
+        end
+
+        around do |ex|
+          topic = pubsub.create_topic(dead_letter_topic_name)
+          ex.run
+        ensure
+          topic&.delete
+        end
+
+        it 'does not retry failed blocks' do
+          skip unless ENV.key?('REAL_PUBSUB')
+
+          payload = { foo: :bar }
+          handler_double = double(call: true)
+
+          adapter.subscribe(topic_name, id: subscriber_id) do |p, m|
+            handler_double.call(p, m)
+            raise 'oh no!'
+          end
+
+          start_listeners do
+            adapter.broadcast topic_name, payload
+
+            sleep 10
+          end
+
+          expect(handler_double).to have_received(:call).exactly(1).times
+        end
+      end
+
       def start_listeners
         adapter.listeners.each(&:start)
         yield
