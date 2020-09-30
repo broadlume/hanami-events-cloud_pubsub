@@ -85,6 +85,7 @@ module Hanami
 
         def run_handler(message)
           middleware.invoke(message) { handler.call(message) }
+          message.ack!
         rescue StandardError => e
           run_error_handlers(e, message)
           message.nack! if CloudPubsub.config.auto_retry.enabled
