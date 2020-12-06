@@ -143,6 +143,8 @@ module Hanami
           sub.dead_letter_max_delivery_attempts = CloudPubsub.config.auto_retry.max_attempts
 
           sub
+        rescue StandardError => e
+          run_error_handlers(e, "Faled to apply retry options (see https://github.com/googleapis/google-cloud-ruby/issues/8237)")
         end
       end
       # rubocop:enable Metrics/ClassLength:
