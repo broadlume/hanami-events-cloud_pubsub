@@ -10,6 +10,8 @@ module Hanami
       let(:sub) do
         instance_double(Google::Cloud::Pubsub::Subscription,
                         listen: true,
+                        retry_policy: nil,
+                        dead_letter_topic: nil,
                         topic: double(name: 'projects/test/topics/some_namespace.test_event'))
       end
       let(:topic) do

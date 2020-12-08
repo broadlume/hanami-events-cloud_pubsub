@@ -87,7 +87,7 @@ module Hanami
           middleware.invoke(message) { handler.call(message) }
           message.ack!
         rescue StandardError => e
-          run_error_handlers(e, message)
+          run_error_handlers(e, message.message_id.to_s)
           message.nack! if CloudPubsub.config.auto_retry.enabled
           raise
         end
@@ -133,18 +133,25 @@ module Hanami
         end
 
         def apply_retry_options(sub)
-          return {} unless CloudPubsub.config.auto_retry.enabled
+          retry_policy = build_retry_policy
+          attempts = CloudPubsub.config.auto_retry.max_attempts
 
-          sub.retry_policy = Google::Cloud::PubSub::RetryPolicy.new(
-            minimum_backoff: CloudPubsub.config.auto_retry.minimum_backoff,
-            maximum_backoff: CloudPubsub.config.auto_retry.maximum_backoff
-          )
-          sub.dead_letter_topic = dead_letter_topic
-          sub.dead_letter_max_delivery_attempts = CloudPubsub.config.auto_retry.max_attempts
+          sub.retry_policy = retry_policy if sub.retry_policy&.to_grpc != retry_policy&.to_grpc
+          sub.dead_letter_topic = dead_letter_topic if sub.dead_letter_topic&.name != dead_letter_topic&.name
+          sub.dead_letter_max_delivery_attempts = attempts if sub.dead_letter_topic&.name != dead_letter_topic&.name
 
           sub
         rescue StandardError => e
-          run_error_handlers(e, "Faled to apply retry options (see https://github.com/googleapis/google-cloud-ruby/issues/8237)")
+          run_error_handlers(e, nil)
+        end
+
+        def build_retry_policy
+          return unless CloudPubsub.config.auto_retry.enabled
+
+          Google::Cloud::PubSub::RetryPolicy.new(
+            minimum_backoff: CloudPubsub.config.auto_retry.minimum_backoff,
+            maximum_backoff: CloudPubsub.config.auto_retry.maximum_backoff
+          )
         end
       end
       # rubocop:enable Metrics/ClassLength:

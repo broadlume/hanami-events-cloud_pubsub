@@ -48,7 +48,7 @@ module Hanami
 
           start_listeners do
             adapter.broadcast topic_name, payload
-            sleep 1
+            sleep 5
           end
 
           expect(handler_double).to have_received(:call).with(be_a(Hash), message)
@@ -66,7 +66,7 @@ module Hanami
 
           start_listeners do
             adapter.broadcast topic_name, payload
-            sleep 1
+            sleep 5
           end
 
           expect(handler_double).to have_received(:call).with('foo' => 'bar')
@@ -84,7 +84,7 @@ module Hanami
 
           start_listeners do
             adapter.broadcast topic_name, payload
-            sleep 1
+            sleep 5
           end
 
           expect(handler_double)
@@ -192,7 +192,7 @@ module Hanami
           start_listeners do
             adapter.broadcast topic_name, payload
 
-            sleep 10
+            sleep 5
           end
 
           expect(handler_double).to have_received(:call).exactly(1).times

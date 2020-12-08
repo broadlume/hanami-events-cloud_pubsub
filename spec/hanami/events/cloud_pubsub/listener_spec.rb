@@ -51,7 +51,7 @@ module Hanami
               listener.register
               listener.start
               topic.publish 'hello'
-              sleep 1
+              sleep 5
 
               listener.shutdown
             end
@@ -100,11 +100,11 @@ module Hanami
                 .to receive(:call)
                 .with(
                   StandardError,
-                  an_instance_of(Google::Cloud::Pubsub::ReceivedMessage)
+                  be_a(String)
                 )
 
               topic.publish 'hello'
-              sleep 1
+              sleep 5
               listener.shutdown
             end
           end

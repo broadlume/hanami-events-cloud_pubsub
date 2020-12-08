@@ -52,7 +52,7 @@ module Hanami
       }, reader: true
       setting :error_handlers, [
         ->(err, msg) do
-          logger.error "Message(#{msg.message_id}) failed with exception #{err.inspect}"
+          logger.error "Message(#{msg}) failed with exception #{err.inspect}"
         end
       ], reader: true
 
