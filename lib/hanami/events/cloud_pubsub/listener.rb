@@ -59,7 +59,8 @@ module Hanami
         end
 
         def shutdown
-          subscriber.stop.wait!
+          stop
+          wait
           self
         end
 
@@ -68,8 +69,8 @@ module Hanami
           self
         end
 
-        def wait
-          subscriber.wait!
+        def wait(timeout = 60)
+          subscriber.wait!(timeout)
           self
         end
 

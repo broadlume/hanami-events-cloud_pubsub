@@ -9,7 +9,7 @@ module Hanami
       class Runner
         attr_reader :logger, :adapter
 
-        def initialize(adapter:, logger:, sleep_time: 2)
+        def initialize(adapter:, logger:, sleep_time: 30)
           @logger = logger
           @adapter = adapter
           @sleep_time = sleep_time
@@ -40,9 +40,8 @@ module Hanami
         def gracefully_shutdown
           stop
           logger.info "Gracefully shutting down CloudPubsub runner: #{self}"
-          sleep_for_a_bit
+          adapter.listeners.each { |l| l.wait(@sleep_time) }
           adapter.flush_messages
-          adapter.listeners.each(&:wait)
           handle_on_shutdown
 
           self
@@ -100,10 +99,6 @@ module Hanami
             ║ threads running: #{Thread.list.select { |thread| thread.status == 'run' }.count}
             ╚══════
           MSG
-        end
-
-        def sleep_for_a_bit
-          sleep @sleep_time
         end
 
         def handle_on_shutdown
