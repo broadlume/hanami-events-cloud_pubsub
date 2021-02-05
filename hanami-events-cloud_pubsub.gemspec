@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hanami-events', '~> 0.2.0'
   spec.add_dependency 'rack'
 
-  spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'bundler', '~> 2.1'
   spec.add_development_dependency 'prometheus-client'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
