@@ -50,6 +50,7 @@ module Hanami
             end
 
             def setup_env(opts)
+              Process.setproctitle('hanami-events-cloud_pubsub')
               ENV['PUBSUB_EMULATOR_HOST'] ||= 'localhost:8085' if opts[:emulator]
             end
 
