@@ -119,12 +119,12 @@ end
 ```
 
 
-# Prometheus Integration
+# Yabeda Prometheus Integration
 
-If you have the `prometheus-client` gem installed, a `/metrics` endpoint will
+If you have the `yabeda-prometheus` gem installed, a `/metrics` endpoint will
 be available on the health check server which can be scraped.
 
-All you need to do to activate this is to make sure to `require 'prometheus/client'`.
+All you need to do to activate this is to make sure to `require 'yabeda/prometheus'`.
 
 # Testing
 
