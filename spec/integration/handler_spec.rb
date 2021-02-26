@@ -104,7 +104,7 @@ module Hanami
           end
 
           expect do
-            adapter.subscribe(updated_topic_name, id: subscriber_id) {}
+            adapter.subscribe(updated_topic_name, id: subscriber_id) { 1 }
           end.to raise_error CloudPubsub::Errors::SubscriptionTopicNameMismatch
         end
       end

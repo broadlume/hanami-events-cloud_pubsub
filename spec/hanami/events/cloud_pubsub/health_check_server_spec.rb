@@ -36,14 +36,22 @@ module Hanami
           end
 
           it 'exposes a /metrics endpoint' do
-            require 'prometheus/client'
-            prometheus = ::Prometheus::Client.registry
-            prometheus.counter(:test_events, docstring: 'Testing')
+            Yabeda.configure!
+
+            fake_message = double(
+              subscription: double(subscriber: double(subscription_name: 'foo')),
+              attributes: { 'event_name' => 'foo.bar' }
+            )
+
+            Middleware::Prometheus.new.call(fake_message)
 
             with_server do
               res = Net::HTTP.get_response(URI.parse('http://localhost:8081/metrics'))
               expect(res.code).to eql('200')
-              expect(res.body).to include('# TYPE test_events counter')
+              expect(res.body).to include('# TYPE received_pubsub_events counter')
+              expect(res.body).to include(
+                '{event_name="foo.bar",subscription="foo",status="succeeded"} 1'
+              )
             end
           end
         end
@@ -61,7 +69,7 @@ module Hanami
           loop do
             sleep 0.2
             break if port_open?
-            raise 'server did not start' if tries > 10
+            raise 'server did not start' if tries > 100
 
             tries += 1
           end

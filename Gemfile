@@ -11,7 +11,7 @@ RUBY_MAJOR = RUBY_VERSION[0].to_i
 
 gem 'hanami-events', github: 'hanami/events'
 gem 'pry'
+gem 'request_id', '~> 0.4.3'
 gem 'rubocop'
 gem 'simplecov', require: false
-gem 'request_id', '~> 0.4.3'
 gem 'webrick' if RUBY_MAJOR > 2

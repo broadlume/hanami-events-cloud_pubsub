@@ -54,10 +54,9 @@ module Hanami
 
           Rack::Builder.new do |builder|
             builder.use Rack::Deflater
-            if defined?(::Prometheus::Client)
-              require 'prometheus/middleware/exporter'
-              builder.use ::Prometheus::Middleware::Exporter
-            end
+            require 'pry'
+            builder.use Yabeda::Prometheus::Exporter if defined?(Yabeda::Prometheus::Exporter)
+
             builder.run health_endpoint_app
           end
         end

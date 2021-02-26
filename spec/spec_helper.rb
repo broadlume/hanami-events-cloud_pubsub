@@ -8,6 +8,8 @@ if ENV['COVERAGE'] == 'true'
 end
 
 require 'bundler/setup'
+require 'pry'
+require 'yabeda/prometheus/mmap'
 require 'hanami/events/cloud_pubsub'
 
 Google::Cloud::Pubsub.configure do |config|
