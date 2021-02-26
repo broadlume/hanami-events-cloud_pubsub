@@ -63,7 +63,7 @@ module Hanami
       if defined?(Yabeda::Prometheus::Exporter)
         begin
           require 'hanami/events/cloud_pubsub/middleware/prometheus'
-          middleware_stack.prepend(Middleware::Prometheus.new)
+          middleware_stack << Middleware::Prometheus.new
         rescue LoadError
           # ok
         end

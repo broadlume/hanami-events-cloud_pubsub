@@ -52,6 +52,9 @@ module Hanami
               expect(res.body).to include(
                 '{event_name="foo.bar",subscription="foo",status="succeeded"} 1'
               )
+              expect(res.body).to match(
+                /^subscriber_runtime_seconds_bucket{.*} 1/
+              )
             end
           end
         end
