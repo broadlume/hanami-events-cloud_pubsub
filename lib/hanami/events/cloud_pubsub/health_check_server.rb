@@ -54,7 +54,6 @@ module Hanami
 
           Rack::Builder.new do |builder|
             builder.use Rack::Deflater
-            require 'pry'
             builder.use Yabeda::Prometheus::Exporter if defined?(Yabeda::Prometheus::Exporter)
 
             builder.run health_endpoint_app
