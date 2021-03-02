@@ -11,6 +11,7 @@ require 'bundler/setup'
 require 'pry'
 require 'yabeda/prometheus/mmap'
 require 'hanami/events/cloud_pubsub'
+require 'google/cloud/pubsub'
 
 Google::Cloud::Pubsub.configure do |config|
   config.project_id = ENV['GOOGLE_CLOUD_PROJECT'] || 'adhawk-franchises-development'

@@ -7,7 +7,6 @@ require 'hanami/events/cloud_pubsub/middleware/stack'
 require 'hanami/events/cloud_pubsub/middleware/logging'
 require 'hanami/events/cloud_pubsub/runner'
 require 'hanami/events/cloud_pubsub/errors'
-require 'google/cloud/pubsub'
 require 'dry-configurable'
 
 module Hanami
@@ -97,6 +96,7 @@ module Hanami
       end
 
       def self.finalize_settings!
+        require 'google/cloud/pubsub'
         conf_hash = config.pubsub
         conf_hash.each { |key, val| Google::Cloud::Pubsub.configure[key] = val }
       end

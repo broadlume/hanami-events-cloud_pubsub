@@ -33,6 +33,8 @@ module Hanami
                   conf.cloud_pubsub.each { |blk| blk.call(config) }
                 end
 
+                require 'google/cloud/pubsub'
+
                 ::Hanami::Events.initialize(
                   :cloud_pubsub,
                   pubsub: Google::Cloud::Pubsub.new,
