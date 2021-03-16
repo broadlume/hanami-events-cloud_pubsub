@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'hanami/cli'
-require 'hanami/events/cloud_pubsub'
-require 'hanami/events/cloud_pubsub/health_check_server'
 
 module Hanami
   module Events
@@ -55,6 +53,7 @@ module Hanami
             end
 
             def start_server
+              require 'hanami/events/cloud_pubsub/health_check_server'
               server = HealthCheckServer.new(runner, logger)
               on_shutdown = proc { @event_queue << proc { shutdown } }
               server.run_in_background(on_shutdown: on_shutdown)
@@ -77,6 +76,7 @@ module Hanami
             def start_runner
               logger.debug 'Running in emulator mode' if @emulator
               logger.info "Starting worker (pid: #{Process.pid})"
+              GC.compact if GC.respond_to?(:compact)
               runner.start
             end
 
@@ -86,6 +86,7 @@ module Hanami
             end
 
             def build_runner
+              require 'hanami/events/cloud_pubsub'
               Hanami::Components.resolve 'events'
               events = Hanami::Components['events']
               @runner = Runner.new(logger: logger, adapter: events.adapter)

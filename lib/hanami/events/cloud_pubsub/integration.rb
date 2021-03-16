@@ -35,11 +35,8 @@ module Hanami
 
                 require 'google/cloud/pubsub'
 
-                ::Hanami::Events.initialize(
-                  :cloud_pubsub,
-                  pubsub: Google::Cloud::Pubsub.new,
-                  logger: Hanami::Components['logger']
-                )
+                opts = { pubsub: Google::Cloud::Pubsub.new, logger: Hanami::Components['logger'] }
+                ::Hanami::Events.initialize(:cloud_pubsub, **opts)
               end
             end
           end
