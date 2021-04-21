@@ -26,6 +26,7 @@ module Hanami
                        subscriber_id:,
                        subscriber_opts: {},
                        middleware: CloudPubsub.config.middleware,
+                       auto_ack: true,
                        dead_letter_topic: nil)
           @topic = topic
           @logger = logger
@@ -35,6 +36,7 @@ module Hanami
           @input_subscriber_opts = subscriber_opts
           @middleware = middleware
           @dead_letter_topic = dead_letter_topic
+          @auto_ack = auto_ack
         end
         # rubocop:enable Metrics/ParameterLists
 
@@ -86,7 +88,7 @@ module Hanami
 
         def run_handler(message)
           middleware.invoke(message) { handler.call(message) }
-          message.ack!
+          message.ack! if @auto_ack
         rescue StandardError => e
           run_error_handlers(e, message.message_id.to_s)
           message.nack! if CloudPubsub.config.auto_retry.enabled
