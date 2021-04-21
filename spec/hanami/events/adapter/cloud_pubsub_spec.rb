@@ -95,10 +95,23 @@ module Hanami
 
           expect(adapter)
             .to receive(:register_listener)
-            .with('some_namespace.test_event', topic, 'some_namespace.test', anything)
+            .with('some_namespace.test_event', topic, 'some_namespace.test', anything, anything)
             .and_call_original
 
           adapter.subscribe('test_event', id: 'test', deadline: 24)
+
+          CloudPubsub.configure do |config|
+            config.namespace = nil
+          end
+        end
+
+        it 'allows for auto_ack to be configured' do
+          expect(adapter)
+            .to receive(:register_listener)
+            .with(anything, topic, anything, false, anything)
+            .and_return(true)
+
+          adapter.subscribe('test_event', id: 'test', deadline: 24, auto_ack: false)
         end
       end
     end

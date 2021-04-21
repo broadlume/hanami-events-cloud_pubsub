@@ -54,7 +54,7 @@ module Hanami
         # @param id [String] A unique identifier for the subscriber
         # @param subscriber_opts [String] Additional options for the subscriber
         # @param block [Block] to execute when event is broadcasted
-        def subscribe(name, id:, **subscriber_opts, &block)
+        def subscribe(name, id:, auto_ack: true, **subscriber_opts, &block)
           event_name = namespaced(name)
           namespaced_id = namespaced(id)
 
@@ -64,7 +64,7 @@ module Hanami
           @subscribers << sub
           topic = topic_for event_name
 
-          register_listener(event_name, topic, namespaced_id, subscriber_opts)
+          register_listener(event_name, topic, namespaced_id, auto_ack, subscriber_opts)
         end
 
         def flush_messages
@@ -76,7 +76,7 @@ module Hanami
 
         attr_reader :logger
 
-        def register_listener(event_name, topic, subscriber_id, subscriber_opts)
+        def register_listener(event_name, topic, subscriber_id, auto_ack, subscriber_opts)
           listener = ::Hanami::Events::CloudPubsub::Listener.new(
             subscriber_id: subscriber_id,
             event_name: event_name,
@@ -84,7 +84,8 @@ module Hanami
             logger: logger,
             topic: topic,
             subscriber_opts: subscriber_opts,
-            dead_letter_topic: dead_letter_topic
+            dead_letter_topic: dead_letter_topic,
+            auto_ack: auto_ack
           )
 
           @listeners << listener
