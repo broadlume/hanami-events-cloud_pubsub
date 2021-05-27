@@ -83,6 +83,11 @@ module Hanami
       end
 
       describe '#subscribe' do
+        before do
+          allow(sub).to receive(:deadline)
+          allow(sub).to receive(:deadline=)
+        end
+
         it 'passes the subscriber_opts to listen' do
           expect(sub).to receive(:listen).with(a_hash_including(deadline: 24))
           adapter.subscribe('some_namespace.test_event', id: 'test', deadline: 24)

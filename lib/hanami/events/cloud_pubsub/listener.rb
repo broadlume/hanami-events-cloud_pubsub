@@ -42,7 +42,7 @@ module Hanami
 
         def register
           subscription = subscription_for(subscriber_id)
-          apply_retry_options(subscription)
+          apply_subscription_options(subscription)
           listener = subscription.listen(**subscriber_options) { |m| handle_message(m) }
           logger.debug("Registered listener for #{subscriber_id} with: #{subscriber_options}")
 
@@ -135,21 +135,38 @@ module Hanami
           }
         end
 
-        def apply_retry_options(sub)
-          retry_policy = build_retry_policy
+        def apply_subscription_options(sub)
+          apply_deadline_options(sub)
+          apply_retry_options(sub)
+          apply_dead_letter_options(sub)
+        rescue StandardError => e
+          run_error_handlers(e, nil)
+        end
+
+        def apply_deadline_options(sub)
+          sub.deadline = subscriber_options[:deadline] if sub.deadline != subscriber_options[:deadline]
+        rescue StandardError => e
+          run_error_handlers(e, nil)
+        end
+
+        def apply_dead_letter_options(sub)
           attempts = CloudPubsub.config.auto_retry.max_attempts
 
-          sub.retry_policy = retry_policy if sub.retry_policy&.to_grpc != retry_policy&.to_grpc
           sub.dead_letter_topic = dead_letter_topic if sub.dead_letter_topic&.name != dead_letter_topic&.name
           sub.dead_letter_max_delivery_attempts = attempts if sub.dead_letter_topic&.name != dead_letter_topic&.name
+        rescue StandardError => e
+          run_error_handlers(e, nil)
+        end
 
-          sub
+        def apply_retry_options(sub)
+          retry_policy = build_retry_policy
+          sub.retry_policy = retry_policy if sub.retry_policy&.to_grpc != retry_policy&.to_grpc
         rescue StandardError => e
           run_error_handlers(e, nil)
         end
 
         def build_retry_policy
-          return unless CloudPubsub.config.auto_retry.enabled
+          return unless Hanami::Events::CloudPubsub.config.auto_retry.enabled
 
           Google::Cloud::PubSub::RetryPolicy.new(
             minimum_backoff: CloudPubsub.config.auto_retry.minimum_backoff,

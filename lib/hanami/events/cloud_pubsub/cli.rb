@@ -93,7 +93,7 @@ module Hanami
             end
 
             def logger
-              CloudPubsub.logger
+              Hanami::Events::CloudPubsub.logger
             end
 
             def setup_signal_handlers
