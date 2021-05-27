@@ -11,13 +11,12 @@ module Hanami
       #
       # @api private
       class CloudPubsub
-        attr_reader :subscribers, :listeners, :topic_registry, :middleware
+        attr_reader :listeners, :topic_registry, :middleware
 
         def initialize(params)
           @pubsub = params[:pubsub]
           @logger = params[:logger] || Logger.new($stdout)
           @listen = params[:listen] || false
-          @subscribers = Concurrent::Array.new
           @listeners = Concurrent::Array.new
           @serializer_type = params.fetch(:serializer, :json).to_sym
           @topic_registry = {}
@@ -61,10 +60,9 @@ module Hanami
           logger.debug("Subscribed listener \"#{id}\" for event \"#{event_name}\"")
 
           sub = Hanami::Events::CloudPubsub::Subscriber.new(event_name, block, logger)
-          @subscribers << sub
           topic = topic_for event_name
 
-          register_listener(event_name, topic, namespaced_id, auto_ack, subscriber_opts)
+          register_listener(event_name, topic, namespaced_id, auto_ack, subscriber_opts, sub)
         end
 
         def flush_messages
@@ -76,11 +74,12 @@ module Hanami
 
         attr_reader :logger
 
-        def register_listener(event_name, topic, subscriber_id, auto_ack, subscriber_opts)
+        # rubocop:disable Metrics/ParameterLists
+        def register_listener(event_name, topic, subscriber_id, auto_ack, subscriber_opts, sub)
           listener = ::Hanami::Events::CloudPubsub::Listener.new(
             subscriber_id: subscriber_id,
             event_name: event_name,
-            handler: method(:call_subscribers),
+            handler: call_subscriber(sub),
             logger: logger,
             topic: topic,
             subscriber_opts: subscriber_opts,
@@ -91,14 +90,15 @@ module Hanami
           @listeners << listener
           listener.register
         end
+        # rubocop:enable Metrics/ParameterLists
 
-        def call_subscribers(message)
-          data = message.data
-          payload = serializer.deserialize(data)
-          event_name = message.attributes['event_name']
+        def call_subscriber(sub)
+          proc do |message|
+            data = message.data
+            payload = serializer.deserialize(data)
+            event_name = message.attributes['event_name']
 
-          @subscribers.each do |subscriber|
-            subscriber.call(event_name, payload, message)
+            sub.call(event_name, payload, message)
           end
         end
 

@@ -100,7 +100,7 @@ module Hanami
 
           expect(adapter)
             .to receive(:register_listener)
-            .with('some_namespace.test_event', topic, 'some_namespace.test', anything, anything)
+            .with('some_namespace.test_event', topic, 'some_namespace.test', anything, anything, anything)
             .and_call_original
 
           adapter.subscribe('test_event', id: 'test', deadline: 24)
@@ -113,7 +113,7 @@ module Hanami
         it 'allows for auto_ack to be configured' do
           expect(adapter)
             .to receive(:register_listener)
-            .with(anything, topic, anything, false, anything)
+            .with(anything, topic, anything, false, anything, anything)
             .and_return(true)
 
           adapter.subscribe('test_event', id: 'test', deadline: 24, auto_ack: false)
