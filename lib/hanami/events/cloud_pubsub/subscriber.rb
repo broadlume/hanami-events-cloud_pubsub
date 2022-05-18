@@ -10,7 +10,7 @@ module Hanami
       #
       # @api private
       class Subscriber < ::Hanami::Events::Subscriber
-        def initialize(event_name, handler, logger = nil, data_struct_class = nil)
+        def initialize(event_name, handler, logger: nil, data_struct_class: nil)
           super
           @handler = handler
         end
