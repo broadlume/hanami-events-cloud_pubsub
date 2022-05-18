@@ -18,20 +18,20 @@ module Hanami
       setting :namespace, reader: true
 
       setting :subscriber, reader: true do
-        setting :streams, 4
+        setting :streams, default: 4
         setting :threads do
-          setting :callback, 8
-          setting :push, 4
+          setting :callback, default: 8
+          setting :push, default: 4
         end
       end
 
-      setting :pubsub, {}, reader: true
+      setting :pubsub, default: {}, reader: true
 
       setting :project_id, reader: true
-      setting :auto_create_subscriptions, false, reader: true
-      setting :auto_create_topics, false, reader: true
-      setting :logger, Logger.new($stdout), reader: true
-      setting :subscriptions_loader, proc {
+      setting :auto_create_subscriptions, default: false, reader: true
+      setting :auto_create_topics, default: false, reader: true
+      setting :logger, default: Logger.new($stdout), reader: true
+      setting :subscriptions_loader, default: proc {
         abort <<~MSG
           ┌────────────────────────────────────────────────────────────────────────────────┐
           │ You must configure subscriptions_loader param in order to be able to subscribe │
@@ -49,7 +49,7 @@ module Hanami
           └────────────────────────────────────────────────────────────────────────────────┘
         MSG
       }, reader: true
-      setting :error_handlers, [
+      setting :error_handlers, default: [
         ->(err, msg) do
           logger.error "Message(#{msg}) failed with exception #{err.inspect}"
         end
@@ -68,7 +68,7 @@ module Hanami
         end
       end
 
-      setting :middleware, middleware_stack
+      setting :middleware, default: middleware_stack
 
       client_middleware_stack = Middleware::Stack.new
 
@@ -83,16 +83,16 @@ module Hanami
         # ok
       end
 
-      setting :client_middleware, client_middleware_stack
+      setting :client_middleware, default: client_middleware_stack
 
-      setting :on_shutdown_handlers, [], reader: true
+      setting :on_shutdown_handlers, default: [], reader: true
 
       setting :auto_retry do
-        setting :enabled, false
-        setting :max_attempts, 1200
+        setting :enabled, default: false
+        setting :max_attempts, default: 1200
         setting :dead_letter_topic_name
-        setting :minimum_backoff, 30
-        setting :maximum_backoff, 600
+        setting :minimum_backoff, default: 30
+        setting :maximum_backoff, default: 600
       end
 
       def self.finalize_settings!
