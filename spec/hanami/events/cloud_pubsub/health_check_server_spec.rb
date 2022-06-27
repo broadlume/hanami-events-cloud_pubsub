@@ -49,9 +49,9 @@ module Hanami
               res = Net::HTTP.get_response(URI.parse('http://localhost:8081/metrics'))
               expect(res.code).to eql('200')
               expect(res.body).to include('# TYPE received_pubsub_events counter')
-              expect(res.body).to include(
-                '{event_name="foo.bar",subscription="foo",status="succeeded"} 1'
-              )
+              expect(res.body).to include('event_name="foo.bar"')
+              expect(res.body).to include('subscription="foo"')
+              expect(res.body).to include('status="succeeded"')
               expect(res.body).to match(
                 /^subscriber_runtime_seconds_bucket{.*} 1/
               )
