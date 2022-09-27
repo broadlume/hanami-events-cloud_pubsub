@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dry-configurable', '>= 0.8'
   spec.add_dependency 'gapic-common', '>= 0.3.4'
   spec.add_dependency 'google-cloud-pubsub', '>= 0.38.1', '< 2.4'
-  spec.add_dependency 'hanami-cli', '~> 0.2'
+  spec.add_dependency 'hanami-cli', '~> 2.0.0.alpha'
   spec.add_dependency 'hanami-events', '~> 0.2.0'
   spec.add_dependency 'rack'
 
